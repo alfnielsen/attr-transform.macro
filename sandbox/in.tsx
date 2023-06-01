@@ -10,7 +10,7 @@
  */
 
 
-import '../types/attr-transform.macro.js'
+import './../attr-transform.macro.js'
 import React, { FC, JSX as RJSX } from 'react'
 
 // Inline tw

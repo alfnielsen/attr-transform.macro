@@ -2,7 +2,6 @@ import type { NodePath, types as T } from '@babel/core'
 
 import { MacroError, createMacro } from "babel-plugin-macros"
 import type { MacroParams } from "babel-plugin-macros"
-import fs from 'fs'
 import { join } from "path"
 
 type AttrTransformMacroParams = Omit<MacroParams, "config"> & {
