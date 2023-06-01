@@ -15,7 +15,7 @@
     "node_modules"
   ],
   "files": [
-    "src/attr-transform.macro.ts",
+    "./src/attr-transform.macro.ts",
     "types/types.d.ts"
   ]
 }
