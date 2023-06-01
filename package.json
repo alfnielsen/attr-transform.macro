@@ -1,0 +1,82 @@
+{
+  "name": "attr-transform.macro",
+  "version": "0.0.1",
+  "description": "jxs attribute pre-processor for twin.macro",
+  "main": "attr-transform.macro.js",
+  "source": "src/attr-transform.macro.ts",
+  "types": "types/attr-transform.macro.d.ts",
+  "scripts": {
+    "dev": "concurrently yarn:dev:* -p none",
+    "dev:macro": "NODE_ENV=dev nodemon -q --watch './src/**/*.ts' --watch package.json -x \"yarn build:macro\" --delay .2",
+    "dev:sandbox": "NODE_ENV=dev nodemon -q --watch sandbox/in.tsx --watch package.json --watch attr-transform.macro.js -x \"yarn build:sandbox\" --delay .2",
+    "build": "yarn run build:macro",
+    "build:macro": "microbundle -i \"./src/attr-transform.macro.ts\" -f cjs -o ./attr-transform.macro.js --target node",
+    "build:sandbox": "babel sandbox/in.tsx -o sandbox/out.js",
+    "test": "yarn build && jest",
+    "test:update": "yarn build && jest --u",
+    "prepublishOnly": "yarn build"
+  },
+  "nodemonConfig": {
+    "ignore": [],
+    "watch": [
+      "src"
+    ],
+    "ext": "ts",
+    "delay": "0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/alfnielsen/attr-transform.macro.git"
+  },
+  "keywords": [
+    "twin.macro",
+    "tailwind",
+    "css-in-js"
+  ],
+  "author": "",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/alfnielsen/attr-transform.macro/issues"
+  },
+  "homepage": "https://github.com/alfnielsen/attr-transform.macro#readme",
+  "dependencies": {
+    "@babel/template": "^7.21.9",
+    "babel-plugin-macros": "^3.1.0"
+  },
+  "devDependencies": {
+    "@babel/cli": "^7.21.5",
+    "@babel/core": "^7.22.1",
+    "@babel/parser": "^7.22.4",
+    "@babel/plugin-syntax-jsx": "^7.21.4",
+    "@babel/plugin-transform-react-jsx": "^7.22.3",
+    "@babel/preset-env": "^7.22.4",
+    "@babel/preset-react": "^7.22.3",
+    "@babel/preset-typescript": "^7.21.5",
+    "@babel/template": "^7.21.9",
+    "@babel/traverse": "^7.22.4",
+    "@babel/types": "^7.22.4",
+    "@emotion/react": "^11.11.0",
+    "@emotion/styled": "^11.11.0",
+    "@testing-library/react": "^14.0.0",
+    "@types/babel-plugin-macros": "^3.1.0",
+    "@types/babel__traverse": "^7.20.0",
+    "@types/jest": "^29.5.1",
+    "@types/node": "^20.2.5",
+    "@types/react": "^18.2.7",
+    "babel-plugin-tester": "^11.0.4",
+    "concurrently": "^8.0.1",
+    "glob-all": "^3.3.1",
+    "jest": "^29.5.0",
+    "jest-diff": "^29.5.0",
+    "microbundle": "^0.15.1",
+    "nodemon": "^2.0.22",
+    "react": "^18.2.0",
+    "resolve": "^1.22.2",
+    "rome": "12.1.2",
+    "tailwindcss": "^3.3.2",
+    "ts-jest": "^29.1.0",
+    "ts-node": "^10.9.1",
+    "twin.macro": "^3.3.1",
+    "typescript": "^5.0.4"
+  }
+}
