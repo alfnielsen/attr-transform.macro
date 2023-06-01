@@ -1,18 +1,18 @@
-/** @type {import('./types/attr-transform.config.d.ts').AttrTransformConfig} */
+/** @type {import('./types/attr-transform.config.js').AttrTransformConfig} */
 
 module.exports = {  
   elms: [
     {
       attrs: [
         {
-          match: /flex-col/,
-          replaceValue: ({ match }) => `p-${match?.[1]}`,
+          matchName: /fl/,
+          replaceName: "flex",
           collect: true,
           remove: true,
         },
         {
           name: "padding",
-          match: /p([0-9])/,
+          matchName: /p([0-9])/,
           value: ({ match }) => `p-${match?.[1]}`,
           validate: ({ collectedAttributes }) => {
             const countPadding = collectedAttributes.filter((attr) => attr.attrConfig.name === "padding").length
@@ -24,13 +24,13 @@ module.exports = {
           remove: true,
         },
         {
-          match: /(red|blue|green)/,
+          matchName: /(red|blue|green)/,
           value: ({ match }) => `text-${match?.[1]}-600`,
           collect: true,
           remove: true,
         },
         {
-          match: "flex",
+          matchName: "flex",
           validate: (matchAttr) => {
             const notAllowed = matchAttr.allMatchingAttributes.some((attr) => attr.name === "line")
             if (notAllowed) {
@@ -42,20 +42,21 @@ module.exports = {
           remove: true,
         },
         {
-          match: "line",
+          matchName: "line",
           value: "flex items-center justify-start",
           collect: true,
           remove: true,
         },
         {
           description: "Collect tw value if exists",
-          match: "tw",
+          matchName: "tw",
           collect: true
         },
         {
           description: "Create tw attribute if not exists, and append collected values (including previous tw values)",
           createAttribute: "tw", // ensure tw attribute exists
-          replaceValue: ({ collectedAttributes }) => {
+          replaceValue: ({ collectedAttributes, parentNodePath }) => {
+            console.log("tagMatch", parentNodePath.node.name.name, collectedAttributes.length) 
             const value = collectedAttributes.map((attr) => attr.value).join(" ")
             return value
           }

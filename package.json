@@ -8,7 +8,7 @@
   "scripts": {
     "dev": "concurrently yarn:dev:* -p none",
     "dev:macro": "NODE_ENV=dev nodemon -q --watch './src/**/*.ts' --watch package.json -x \"yarn build:macro\" --delay .2",
-    "dev:sandbox": "NODE_ENV=dev nodemon -q --watch sandbox/in.tsx --watch package.json --watch attr-transform.macro.js -x \"yarn build:sandbox\" --delay .2",
+    "dev:sandbox": "NODE_ENV=dev nodemon -q --watch sandbox/in.tsx --watch attr-transform.config.js --watch package.json --watch attr-transform.macro.js -x \"yarn build:sandbox\" --delay .2",
     "build": "yarn run build:macro",
     "build:macro": "microbundle -i \"./src/attr-transform.macro.ts\" -f cjs -o ./attr-transform.macro.js --target node",
     "build:sandbox": "babel sandbox/in.tsx -o sandbox/out.js",

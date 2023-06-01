@@ -20,9 +20,9 @@ import React from 'react';
 // https://www.typescriptlang.org/docs/handbook/jsx.html
 
 const DD = props => {
-  return <div {...props} />;
+  return <div data-prop="t" {...props} tw="p-2 flex items-center justify-start" />;
 };
-const d1 = <DD />;
+const d1 = <DD tw="p-1 bg-black/25  " data-prop="more" />;
 const d2 = <DD />;
 const d3 = <DD />;
-const d4 = <DD />;
+const d4 = <DD tw="bg-gray-100" />;
