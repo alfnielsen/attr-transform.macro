@@ -1,5 +1,6 @@
-import { MacroParams } from "babel-plugin-macros"
-import type { NodePath, types as T } from '@babel/core'
+import type { NodePath, types as T } from "@babel/core";
+
+import type { MacroParams } from "babel-plugin-macros";
 
 export type AttrTransformMacroParams = Omit<MacroParams, "config"> & {
   config?: AttrTransformConfig;

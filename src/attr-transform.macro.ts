@@ -3,94 +3,50 @@ import type { NodePath, types as T } from '@babel/core'
 import { MacroError, createMacro } from "babel-plugin-macros"
 import type { MacroParams } from "babel-plugin-macros"
 import { join } from "path"
+import cli from "cli-color";
 
-type AttrTransformMacroParams = Omit<MacroParams, "config"> & {
-  config?: AttrTransformConfig
-}
-type AttrTransformConfig = {
-  config?: string // file name (default: attr-transform.config.js)
-  elms?: ElmConfig[]
-}
-type ElmConfig = {
-  match?: string | RegExp; // Optional match // Special "*" matches all
-  dontMatch?: string | RegExp; // Optional dontMatch
-  attrs: AttrConfig[]
-}
-
-type MatchValueFunc = (attrMatch: AttrMatch) => boolean
-type AttrValueFunc = (attrMatch: AttrMatch) => FullLegalAttributeValues
-type AttrStringValueFunc = (attrMatch: AttrMatch) => string
-type CreateValueFunc = (attrMatch: AttrMatch) => string | T.JSXAttribute
-type ValidateValueFunc = (attrMatch: AttrMatch) => string | undefined
-type AttrConfig = {
-  // a name for the config (for debugging and overview)
-  name?: string,
-  // a name for the config (for debugging and overview)
-  description?: string,
-  // a list of tags. Use for more complex match and replace (Like selecteing all collected with a tag)
-  tags?: string[],
-  // create the attribute if not exists
-  createAttribute?:
-  | string
-  | CreateValueFunc
-  // mosth match the attribute name ( Fx: "padding" or "p1" or /p(1-9)/)
-  matchName?: string | RegExp
-  // most not match the attribute name ( Fx: "padding" or "p1" or /p(1-9)/)
-  dontMatch?: string | RegExp
-  // Calcalate a value from the AttrMatch Object. ( Fx: "p-1" or ({match}) => `p-${match[1]}` )
-  value?:
-  | string
-  | AttrValueFunc
-  // Replace the value of the matched attribute with the calculated value
-  replaceValue?:
-  | string
-  | AttrValueFunc
-  replaceName?:
-  | string
-  | AttrStringValueFunc
-  // Validate the value (Throw MacroError if not valid)
-  validate?: ValidateValueFunc
-  // collect AttrMatch Object to be used by other attributes config (This is not need, mostly to indicate that it's macthed)
-  collect?: boolean
-  // remove this attribute after processing of all attributes
-  remove?: boolean
-
-}
-
-type LegalAttributeValues = T.JSXElement | T.JSXFragment | T.StringLiteral | T.JSXExpressionContainer | null | undefined
-type FullLegalAttributeValues = string | number | boolean | LegalAttributeValues
-// Meta data for the attribute use for calculate the value, validate etc in the config
-type AttrMatch = {
-  name: string
-  value: FullLegalAttributeValues
-  attrConfig: AttrConfig
-  matchFunction?: MatchValueFunc,
-  dontMatchFunction?: MatchValueFunc,
-  validateFunction?: ValidateValueFunc
-  valueFunction?: AttrValueFunc
-  match?: RegExpMatchArray | null
-  tagMatch?: RegExpMatchArray | null
-  allMatchingAttributes: AttrMatch[] // all props found for this element
-  collectedAttributes: AttrMatch[] // all props found for this element
-  // babel types for advanced usage
-  nodePath: NodePath<T.JSXAttribute>
-  parentNodePath: NodePath<T.JSXOpeningElement>
-  // babel types for super advanced usage
-  //state: Babel.PluginPass
-  macroParams: AttrTransformMacroParams
-  collected?: boolean
-  remove?: boolean
-}
-
-
-
+import type {
+  AttrMatch,
+  AttrTransformConfig,
+  AttrTransformMacroParams,
+  AttrValueFunc,
+  ElmConfig,
+  FullLegalAttributeValues,
+  MatchValueFunc,
+  PostActionMatch,
+  PostMatchAction,
+  ValidateValueFunc,
+} from "./attr-transform.config-types";
 
 function getJsxAttributes(nodePath: NodePath<T.JSXElement>) {
-  let attributes = nodePath.get("openingElement.attributes") as NodePath<T.JSXAttribute>[]
+  let attributes = nodePath.get("openingElement.attributes") as NodePath<T.JSXAttribute>[];
   if (!Array.isArray(attributes)) {
-    attributes = [attributes]
+    attributes = [attributes];
   }
-  return attributes.filter((x) => x?.isJSXAttribute())
+  return attributes.filter((x) => x?.isJSXAttribute());
+}
+
+function MatchElm(path: NodePath<T.JSXElement>, elms: ElmConfig[]) {
+  const elm = path.get("openingElement");
+  const tagName = (elm.node.name as T.JSXIdentifier).name?.toString() ?? "";
+  if (!tagName) return { elm, tagName, tagMatch: null, matchingElmConfig: undefined };
+  let tagMatch: RegExpMatchArray | null = null;
+  const matchingElmConfig = elms.find((elmConfig) => {
+    if (elmConfig.match === undefined) return true;
+    if (typeof elmConfig.match === "string") {
+      tagMatch = tagName === elmConfig.match ? [tagName] : null;
+    }
+    if (elmConfig.match instanceof RegExp) {
+      tagMatch = tagName.match(elmConfig.match);
+    }
+    if (!tagMatch) return false;
+    if (elmConfig.dontMatch) {
+      const dontMatch = tagName.match(elmConfig.dontMatch);
+      if (dontMatch) return false;
+    }
+    return true;
+  });
+  return { elm, tagName, tagMatch, matchingElmConfig };
 }
 
 function FindMatchingAttributesConfig(
@@ -128,17 +84,17 @@ function FindMatchingAttributesConfig(
       }
     }
     // dontMatch
-    if (attrConfig.dontMatch) {
-      if (typeof attrConfig.dontMatch === "string") {
-        const dontMatch = attrName === attrConfig.dontMatch;
+    if (attrConfig.dontMatchName) {
+      if (typeof attrConfig.dontMatchName === "string") {
+        const dontMatch = attrName === attrConfig.dontMatchName;
         if (dontMatch) continue; // no match
       }
-      if (attrConfig.dontMatch instanceof RegExp) {
-        const dontMatch = attrName.match(attrConfig.dontMatch);
+      if (attrConfig.dontMatchName instanceof RegExp) {
+        const dontMatch = attrName.match(attrConfig.dontMatchName);
         if (dontMatch) continue; // no match
       }
-      if (typeof attrConfig.dontMatch === "function") {
-        dontMatchFunction = attrConfig.dontMatch; // finish after collect all attributes
+      if (typeof attrConfig.dontMatchName === "function") {
+        dontMatchFunction = attrConfig.dontMatchName; // finish after collect all attributes
       }
     }
     // validate
@@ -175,28 +131,38 @@ function FindMatchingAttributesConfig(
       allMatchingAttributes: [], // finish after collect all attributes: get after grouping
       collectedAttributes: [], // finish after collect all attributes: get after grouping
       nodePath: attrNodePath,
-      parentNodePath: elmNodePath,
-      macroParams
-    }
-    return fount
+      elmNodePath: elmNodePath,
+      macroParams,
+    };
+    return fount;
   }
 }
 
 function loadConfig(params: AttrTransformMacroParams): AttrTransformConfig {
-  let config: AttrTransformConfig = {}
-  const { config: babelMacroConfig } = params
+  let config: AttrTransformConfig = {};
+  const { config: babelMacroConfig } = params;
   // Get the config in babel-macro config: https://github.com/kentcdodds/babel-plugin-macros/blob/main/other/docs/author.md
   // Or from file
-  const configFile = babelMacroConfig?.config ?? "attr-transform.config.js"
+
+  let configFile = undefined;
+  if (babelMacroConfig?.config === undefined) {
+    configFile = "attr-transform.config.js";
+  } else if (typeof babelMacroConfig?.config === "string") {
+    configFile = babelMacroConfig.config;
+  } else {
+    config = babelMacroConfig;
+  }
+  console.log("config: ", config);
+
   if (configFile) {
-    const baseDirectory = process.cwd()
+    const baseDirectory = process.cwd();
     //throw new MacroError("baseDirectory: " + baseDirectory)
     //console.log("baseDirectory: " + baseDirectory, "configFile: " + configFile)
-    const configFilePath = join(baseDirectory, configFile)
-    const configFromFile = require(configFilePath) as AttrTransformConfig
-    config = configFromFile
+    const configFilePath = join(baseDirectory, configFile);
+    const configFromFile = require(configFilePath) as AttrTransformConfig;
+    config = configFromFile;
   } else if (babelMacroConfig?.elms) {
-    config = babelMacroConfig
+    config = babelMacroConfig;
   } else {
     throw new MacroError(
       `
@@ -206,189 +172,213 @@ function loadConfig(params: AttrTransformMacroParams): AttrTransformConfig {
       module.exports = {
         elms: [
           {
-            match: "*", // match all elements tag
-            dontMatch: /img/,
             attrs: {
               padding: {
-                match: /p([0-9])/,
-                value: ({match}) => \`p-\${match[1]}\`,
+                matchName: /p([0-9])/,
+                replaceValue: ({match}) => \`p-\${match[1]}\`,
               },
               color: {
-                match: /([red|blue|green])/,
-                value: ({match}) => \`text-\${match[1]}-600\`,
+                matchName: /([red|blue|green])/,
+                replaceValue: ({match}) => \`text-\${match[1]}-600\`,
               },
-              line: "flex items-center justify-start",
+              line: {
+                matchName: /line-([0-9])/,
+                replaceValue: "flex items-center justify-start",
+              } 
             },
           },
         ],
       }
-      `,
-    )
+      `
+    );
   }
-  return config
+  return config;
 }
 
-
 function macro(params: AttrTransformMacroParams): void {
-  const t = params.babel.types
-  const program = params.state.file.path
+  const t = params.babel.types;
+  const program = params.state.file.path;
 
-  const attributesToRemove: NodePath<T.JSXAttribute>[] = []
+  const attributesToRemove: NodePath<T.JSXAttribute>[] = [];
 
-  const elmConfig = loadConfig(params)
+  const elmConfig = loadConfig(params);
 
   program.traverse({
     JSXElement(path) {
-      if (!elmConfig.elms) return
-      const jsxAttributePaths = getJsxAttributes(path)
-      const elm = path.get("openingElement")
+      if (!elmConfig.elms) return;
+      const jsxAttributePaths = getJsxAttributes(path);
+
       // Test matching tag (elm)
-      const tagName = (elm.node.name as T.JSXIdentifier).name?.toString() ?? "";
-      if (!tagName) return false
-      let tagMatch: RegExpMatchArray | null = null
-      const matchingElmConfig = elmConfig.elms.filter((elmConfig) => {
-        if (elmConfig.match === undefined) return true
-        if (typeof elmConfig.match === "string") {
-          tagMatch = tagName === elmConfig.match ? [tagName] : null
-        }
-        if (elmConfig.match instanceof RegExp) {
-          tagMatch = tagName.match(elmConfig.match)
-        }
-        if (!tagMatch) return false
-        if (elmConfig.dontMatch) {
-          const dontMatch = tagName.match(elmConfig.dontMatch)
-          if (dontMatch) return false
-        }
-        return true
-      })
+      const { elm, tagName, tagMatch, matchingElmConfig } = MatchElm(path, elmConfig.elms);
+      if (!matchingElmConfig) return false;
 
-      if (matchingElmConfig.length === 0) return false
-      const foundAttributes: AttrMatch[] = []
-      const collectedAttributes: AttrMatch[] = []
-      for (const elmConfig of matchingElmConfig) {
-        const mappedAttributes = jsxAttributePaths
-          .map((attrPath) => FindMatchingAttributesConfig(
-            params,
-            elmConfig,
-            elm,
-            tagMatch,
-            attrPath
-          ))
-          // remove undefined
-          .filter((x) => !!x) as AttrMatch[];
+      // Match attributes
+      const foundAttributes = jsxAttributePaths
+        .map((attrPath) => FindMatchingAttributesConfig(params, matchingElmConfig, elm, tagMatch, attrPath))
+        // remove undefined
+        .filter((x) => !!x) as AttrMatch[];
+      // list elm actions
+      const postMatchActions: PostMatchAction[] = matchingElmConfig.actions ?? [];
 
-        mappedAttributes.forEach((attr) => {
-          if (foundAttributes.some(x => x.nodePath === attr.nodePath)) return;
-          foundAttributes.push(attr);
-          if (attr.collected) {
-            collectedAttributes.push(attr);
+      if (foundAttributes.length === 0 && postMatchActions.length === 0) return;
+      console.log(
+        cli.green(`#-------------------# elm: ${tagName} (actions: ${postMatchActions.length}) #--------------------#`)
+      );
+
+      const collectedAttributes: AttrMatch[] = [];
+      const steps: { [key: string]: (foundProp: AttrMatch) => void } = {
+        collect: (foundProp) => {
+          if (foundProp.collected) {
+            collectedAttributes.push(foundProp);
           }
-        })
-      }
-      if (foundAttributes.length === 0) return;
+        },
+        setMeta: (foundProp) => {
+          foundProp.allMatchingAttributes = foundAttributes;
+          foundProp.collectedAttributes = collectedAttributes;
+        },
+        setValues: (foundProp) => {
+          if (foundProp?.valueFunction) {
+            foundProp.value = foundProp.valueFunction(foundProp);
+          }
+        },
+        callValidators: (foundProp) => {
+          if (foundProp?.validateFunction) {
+            const errorMessage = foundProp.validateFunction(foundProp);
+            if (errorMessage) throw new MacroError(errorMessage);
+          }
+        },
+      };
 
-      // set valueFunction meta data
-      foundAttributes.forEach((foundProp) => {
-        foundProp.allMatchingAttributes = foundAttributes;
-        foundProp.collectedAttributes = collectedAttributes;
+      Object.values(steps).forEach((step) => {
+        foundAttributes.forEach(step);
       });
-      // Get value from valueFunction's
-      foundAttributes.forEach((foundProp) => {
-        if (foundProp?.valueFunction) {
-          foundProp.value = foundProp.valueFunction(foundProp);
+
+      console.log(cli.blackBright(`---------------------attributes: ${foundAttributes.length} --------------------`));
+      // Attributes Actions
+      for (const foundProp of foundAttributes) {
+        console.log("Attr:", cli.cyan(foundProp.nodePath.node.name.name), " value: ", cli.greenBright(foundProp.value));
+        if (foundProp.attrConfig.replaceName || foundProp.attrConfig.replaceValue) {
+          console.log("Action:", cli.bgRed("replaceName and/or replaceValue"), foundProp.nodePath.node.name.name);
+          let newName: string | undefined;
+          let id: T.JSXIdentifier | T.JSXNamespacedName | undefined;
+          // Optional new name
+          if (foundProp.attrConfig.replaceName) {
+            if (typeof foundProp.attrConfig.replaceName === "string") {
+              newName = foundProp.attrConfig.replaceName;
+            } else {
+              newName = foundProp.attrConfig.replaceName(foundProp);
+            }
+            if (newName) {
+              id = t.jsxIdentifier(newName);
+            }
+          } else {
+            id = foundProp.nodePath.node.name;
+          }
+          // Optional new value
+          let newValueNode: T.JSXAttribute["value"] | undefined;
+          if (foundProp.attrConfig.replaceValue) {
+            let newValue: FullLegalAttributeValues | undefined;
+            if (typeof foundProp.attrConfig.replaceValue === "string") {
+              newValue = foundProp.attrConfig.replaceValue;
+            } else {
+              newValue = foundProp.attrConfig.replaceValue(foundProp);
+            }
+            if (typeof newValue === "string") {
+              newValueNode = t.stringLiteral(newValue);
+            } else if (typeof newValue === "number") {
+              newValueNode = t.jsxExpressionContainer(t.numericLiteral(newValue));
+            } else if (typeof newValue === "boolean") {
+              newValueNode = t.jsxExpressionContainer(t.booleanLiteral(newValue));
+            } else if (t.isNode(newValue)) {
+              newValueNode = newValue;
+            }
+          } else {
+            newValueNode = foundProp.nodePath.node.value;
+          }
+          // Replace attribute
+          if (id && newValueNode) {
+            const newAttr = t.jsxAttribute(id, newValueNode);
+            foundProp.nodePath.replaceWith(newAttr);
+          } else if (id) {
+            const newAttr = t.jsxAttribute(id, newValueNode);
+            foundProp.nodePath.replaceWith(newAttr);
+          } else if (newValueNode) {
+            foundProp.nodePath.replaceWith(newValueNode);
+          }
         }
-      });
-      // Run validate function
-      foundAttributes.forEach((foundProp) => {
-        if (foundProp?.validateFunction) {
-          const errorMessage = foundProp.validateFunction(foundProp);
-          if (errorMessage) throw new MacroError(errorMessage)
-        }
-      });
-      // Run logic
-      foundAttributes.forEach((foundProp) => {
-        if (foundProp.attrConfig.createAttribute) {
-          if (typeof foundProp.attrConfig.createAttribute === "string") {
-            const newAttrName = foundProp.attrConfig.createAttribute
-            const existingAttribute = jsxAttributePaths.find((attr) => attr.node.name.name === newAttrName)
+      }
+
+      console.log(cli.blackBright(`---------------------actions: ${postMatchActions.length}--------------------`));
+
+      const matchedActions = postMatchActions
+        .map((action) => {
+          const matchAction: PostActionMatch = {
+            name: action.name ?? "",
+            value: "",
+            postMatchAction: action,
+            allMatchingAttributes: foundAttributes,
+            collectedAttributes: collectedAttributes,
+            elmNodePath: elm,
+            tagMatch: tagMatch,
+            macroParams: params,
+          };
+          // conditions
+          console.log("Action::::", cli.cyan(matchAction.value));
+          if (action.condition) {
+            const match = action.condition(matchAction);
+            if (!match) return;
+
+            if (action.value && typeof action.value === "function") {
+              matchAction.value = action.value(matchAction);
+            } else if (action.value) {
+              matchAction.value = action.value;
+            }
+
+            return matchAction;
+          }
+          return matchAction;
+        })
+        .filter((x) => !!x) as PostActionMatch[];
+      console.log(
+        cli.blackBright(`---------------------matched actions: ${matchedActions.length}--------------------`)
+      );
+
+      // Post match actions
+      for (const action of matchedActions) {
+        console.log("Action:", cli.cyan(action.name ?? ""), "conditions: match");
+
+        let value = action.value;
+
+        if (action.postMatchAction.createAttribute) {
+          const attr = action.postMatchAction.createAttribute;
+          if (typeof attr === "string") {
+            const newAttrName = attr;
+            const existingAttribute = jsxAttributePaths.find((attr) => attr.node.name.name === newAttrName);
             // New value:
-            let newAttr: T.JSXAttribute | undefined
-            const id = t.jsxIdentifier(newAttrName)
-            if (!foundProp.value) {
-              newAttr = t.jsxAttribute(id)
-            } else if (typeof foundProp.value === "string") {
-              newAttr = t.jsxAttribute(id, t.stringLiteral(foundProp.value))
-            } else if (typeof foundProp.value === "number") {
-              newAttr = t.jsxAttribute(id, t.jsxExpressionContainer(t.numericLiteral(foundProp.value)))
-            } else if (typeof foundProp.value === "boolean") {
-              newAttr = t.jsxAttribute(id, t.jsxExpressionContainer(t.booleanLiteral(foundProp.value)))
-            } else if (t.isNode(foundProp.value)) {
-              newAttr = t.jsxAttribute(id, foundProp.value)
+            let newAttr: T.JSXAttribute | undefined;
+            const id = t.jsxIdentifier(newAttrName);
+            if (!value) {
+              newAttr = t.jsxAttribute(id);
+            } else if (typeof value === "string") {
+              newAttr = t.jsxAttribute(id, t.stringLiteral(value));
+            } else if (typeof value === "number") {
+              newAttr = t.jsxAttribute(id, t.jsxExpressionContainer(t.numericLiteral(value)));
+            } else if (typeof value === "boolean") {
+              newAttr = t.jsxAttribute(id, t.jsxExpressionContainer(t.booleanLiteral(value)));
+            } else if (t.isNode(value)) {
+              newAttr = t.jsxAttribute(id, value);
             }
             if (newAttr) {
               if (!existingAttribute) {
                 // Add new attribute
-                elm.node.attributes.push(newAttr)
-              } else if (foundProp.attrConfig.replaceValue) {
-                existingAttribute.replaceWith(newAttr)
+                elm.node.attributes.push(newAttr);
+              } else if (action.value) {
+                existingAttribute.replaceWith(newAttr);
               }
             }
-          } else {
-            const newAttr = foundProp.attrConfig.createAttribute(foundProp)
-            if (newAttr) {
-              if (typeof newAttr === "string") {
-                const id = t.jsxIdentifier(newAttr)
-                const newAttrNode = t.jsxAttribute(id)
-                elm.node.attributes.push(newAttrNode)
-              } else if (t.isNode(newAttr)) {
-                elm.node.attributes.push(newAttr)
-              }
-            }
-          }
-        } else if (foundProp.attrConfig.replaceName || foundProp.attrConfig.replaceValue) {
-          let newName: string | undefined
-          let id: T.JSXIdentifier | T.JSXNamespacedName | undefined
-          // Optional new name
-          if (foundProp.attrConfig.replaceName) {
-            if (typeof foundProp.attrConfig.replaceName === "string") {
-              newName = foundProp.attrConfig.replaceName
-            } else {
-              newName = foundProp.attrConfig.replaceName(foundProp)
-            }
-            if (newName) {
-              id = t.jsxIdentifier(newName)
-            }
-          } else {
-            id = foundProp.nodePath.node.name
-          }
-          // Optional new value
-          let newValueNode: T.JSXAttribute["value"] | undefined
-          if (foundProp.attrConfig.replaceValue) {
-            let newValue: FullLegalAttributeValues | undefined
-            if (typeof foundProp.attrConfig.replaceValue === "string") {
-              newValue = foundProp.attrConfig.replaceValue
-            } else {
-              newValue = foundProp.attrConfig.replaceValue(foundProp)
-            }
-            if (typeof newValue === "string") {
-              newValueNode = t.stringLiteral(newValue)
-            } else if (typeof newValue === "number") {
-              newValueNode = t.jsxExpressionContainer(t.numericLiteral(newValue))
-            } else if (typeof newValue === "boolean") {
-              newValueNode = t.jsxExpressionContainer(t.booleanLiteral(newValue))
-            } else if (t.isNode(newValue)) {
-              newValueNode = newValue
-            }
-          } else {
-            newValueNode = foundProp.nodePath.node.value
-          }
-          // Replace attribute
-          if (id && newValueNode) {
-            const newAttr = t.jsxAttribute(id, newValueNode)
-            foundProp.nodePath.replaceWith(newAttr)
           }
         }
-      });
+      }
 
       // remove props
       for (const foundProp of foundAttributes) {
@@ -397,17 +387,14 @@ function macro(params: AttrTransformMacroParams): void {
           attributesToRemove.push(foundProp.nodePath);
         }
       }
-
     },
-  })
+  });
 
-
-  program.scope.crawl()
+  program.scope.crawl();
   // remove all matched attributes
   attributesToRemove.forEach((attrPath) => {
     attrPath.remove();
   });
-
 }
 
 

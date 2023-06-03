@@ -41,7 +41,8 @@
   "homepage": "https://github.com/alfnielsen/attr-transform.macro#readme",
   "dependencies": {
     "@babel/template": "^7.21.9",
-    "babel-plugin-macros": "^3.1.0"
+    "babel-plugin-macros": "^3.1.0",
+    "cli-color": "^2.0.3"
   },
   "devDependencies": {
     "@babel/cli": "^7.21.5",
@@ -60,6 +61,7 @@
     "@testing-library/react": "^14.0.0",
     "@types/babel-plugin-macros": "^3.1.0",
     "@types/babel__traverse": "^7.20.0",
+    "@types/cli-color": "^2.0.2",
     "@types/jest": "^29.5.1",
     "@types/node": "^20.2.5",
     "@types/react": "^18.2.7",

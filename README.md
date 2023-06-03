@@ -58,10 +58,14 @@ let from = <Button onclick={} />;
 let to = <Button onClick={} />;
 
 // config:
-{
-  matchName: /onclick/i,
-  replaceName: "onClick",
-}
+elms:[
+  attr:[
+    {
+      matchName: /onclick/i,
+      replaceName: "onClick"
+    }
+  ]
+]
 ```
 
 ```ts
@@ -69,84 +73,98 @@ let to = <Button onClick={} />;
 let from = <div tw="flex-col" />;
 let to = <div tw="flex flex-col" />;
 // config:
-{
-  matchName: "tw",
-  replaceName: ({value}) => {
-    const values = value.split(" ");
-    if (values.includes("flex-col") || !values.includes("flex")) {
-      values.unshift("flex");
+elms:[
+  attr:[
+    {
+      matchName: "tw",
+      replaceName: ({value}) => {
+        const values = value.split(" ");
+        if (values.includes("flex-col") || !values.includes("flex")) {
+          values.unshift("flex");
+        }
+        return values.join(" ");
+      },
     }
-    return values.join(" ");
-  },
-}
-
+  ]
+]
 ```
 
 ```ts
 // Rename attribute and change value
-let from = <div name-per />;
-let to = <div name="per" />;
+let from = <div name-per data-prop="t" />;
+let to = <div name="per" data-prop="t" />;
 // config:
-let attr: {
-  matchName: /(\w)\-(\w)/,
-  replaceName: ({match}) => match[0],
-  replaceValue: ({match}) => match[1]
-}
+elms:[
+  attr:[
+    {
+      matchName: /(\w)\-(\w)/,
+      dontMatchName: /data\-/,
+      replaceName: ({match}) => match[0],
+      replaceValue: ({match}) => match[1]
+    }
+  ]
+]
 ```
+
 
 ```ts
 // Collect and transfor (including remove atttribus and create new attribute)
 let from = <div flex between p1 />;
 let to = <div tw="flex items-center justify-between p-1" />;
 // config:
-[
-  {
-    matchName: "flex",
-    collect: true,
-    remove: true,
-  },
-  {
-    matchName: "between",
-    value: "justify-between",
-    collect: true,
-    remove: true,
-  },
-  {
-    name: "padding",
-    matchName: /p([1-9])/,
-    value: ({match}) => `p-${match[1]}`,        
-    validate: ({ collectedAttributes }) => {
-      const countPadding = collectedAttributes.filter((attr) => attr.attrConfig.name === "padding").length
-      if (countPadding > 1) {
-        return "You can't use more than one 'padding ( p1, p2, ..., p9 )' on the same element"
-      }
+elms:[
+  attr:[
+    {
+      matchName: "flex",
+      collect: true,
+      remove: true,
     },
-    collect: true,
-    remove: true,
-  },
-  {
-    description: "collect the original value if exists",
-    matchName: "tw",
-    collect: true
-  },
-  {
-    description: "Create tw if not exists",
-    createAttribute: "tw", // ensure tw attribute exists
-    replaceValue: ({ collectedAttributes }) => {
-      const flex = collectedAttributes.some((attr) => attr.name === "flex")
-      const col = collectedAttributes.some((attr) => attr.name === "col")
-      let value = collectedAttributes.some((attr) => attr.value ?? "").filter(x => !!x).join(" ");
-      if(flex){
-         tw += " flex"
-         if(col){
-           tw += " flex-col"
-         }else{
-            tw += " items-center"
-         }
-      }
-      return value
+    {
+      matchName: "between",
+      value: "justify-between",
+      collect: true,
+      remove: true,
+    },
+    {
+      name: "padding",
+      matchName: /p([1-9])/,
+      value: ({match}) => `p-${match[1]}`,        
+      validate: ({ collectedAttributes }) => {
+        const countPadding = collectedAttributes.filter((attr) => attr.attrConfig.name === "padding").length
+        if (countPadding > 1) {
+          return "You can't use more than one 'padding ( p1, p2, ..., p9 )' on the same element"
+        }
+      },
+      collect: true,
+      remove: true,
+    },
+    {
+      description: "collect the original value if exists",
+      matchName: "tw",
+      collect: true
     }
-  }
+  ],
+  actions: [
+    {
+      description: "Create tw if not exists",
+      createAttribute: "tw", // ensure tw attribute exists
+      condition: ({ collectedAttributes }) => collectedAttributes.length > 0,
+      value: ({ collectedAttributes }) => {
+        const flex = collectedAttributes.some((attr) => attr.name === "flex")
+        const col = collectedAttributes.some((attr) => attr.name === "col")
+        let value = collectedAttributes.some((attr) => attr.value ?? "").filter(x => !!x).join(" ");
+        if(flex){
+           tw += " flex"
+           if(col){
+             tw += " flex-col"
+           }else{
+              tw += " items-center"
+           }
+        }
+        return value
+      }
+    }
+  ]
 ]
 
 ```

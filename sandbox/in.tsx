@@ -28,66 +28,57 @@ interface PaddingPropList {
     p9?: boolean
 }
 /** p1 - p9 only one is allowed */
-type PaddingProp = ZeroOrOneProp<PaddingPropList>
+type PaddingProp = RequireOnlyOne<PaddingPropList>;
 
 // generic:
-type RequireOnlyOne<T, Keys extends keyof T = keyof T> =
-    Pick<T, Exclude<keyof T, Keys>>
-    & {
-        [K in Keys]-?:
-        Required<Pick<T, K>>
-        & Partial<Record<Exclude<Keys, K>, undefined>>
-    }[Keys]
+/** p1 - p9 only one is allowed */
+type RequireOnlyOne<T, Keys extends keyof T = keyof T> = Pick<T, Exclude<keyof T, Keys>> &
+  {
+    [K in Keys]-?: Required<Pick<T, K>> & Partial<Record<Exclude<Keys, K>, undefined>>;
+  }[Keys];
 
-
-type ZeroOrOneProp<T, Keys extends keyof T = keyof T> =
-    T extends Partial<T> ? RequireOnlyOne<T, Keys> : T
-
-
+type ZeroOrOneProp<T, Keys extends keyof T = keyof T> = T extends Partial<T> ? RequireOnlyOne<T, Keys> : T;
 
 // https://www.typescriptlang.org/docs/handbook/jsx.html
 declare global {
-    namespace JSX {
+  namespace JSX {
+    interface IntrinsicElements {
+      div: React.DetailedHTMLProps<React.HTMLAttributes<HTMLDivElement>, HTMLDivElement>;
 
-        interface IntrinsicElements {
-            div: React.DetailedHTMLProps<React.HTMLAttributes<HTMLDivElement>, HTMLDivElement>
-
-            box: React.DetailedHTMLProps<React.HTMLAttributes<HTMLDivElement>, HTMLDivElement>;
-        }
-
-        // interface ElementAttributesProperty {
-        //     p1?: boolean
-        //     flex?: boolean
-        //     line?: boolean
-        // }
-
-        interface IntrinsicAttributes {
-            /** tw: "flex" */
-            flex?: boolean;
-            /** tw: "flex items-center justify-start" */
-            line?: boolean;
-            /** tw: "p1" */
-            p1?: boolean;
-            /** tw: "p2" */
-            p2?: boolean;
-        }
+      box: React.DetailedHTMLProps<React.HTMLAttributes<HTMLDivElement>, HTMLDivElement>;
     }
+
+    // interface ElementAttributesProperty {
+    //     p1?: boolean
+    //     flex?: boolean
+    //     line?: boolean
+    // }
+
+    interface IntrinsicAttributes {
+      /** tw: "flex" */
+      flex?: boolean;
+      /** tw: "flex items-center justify-start" */
+      line?: boolean;
+      /** tw: "p1" */
+      p1?: boolean;
+      /** tw: "p2" */
+      p2?: boolean;
+    }
+  }
 }
 
+type DDProps = PaddingProp & {
+  children?: React.ReactNode;
+  className?: string;
+  tw?: string;
+};
 
-type DDProps = {
-    children?: React.ReactNode
-    className?: string
-    tw?: string
-}
-
-
-
-const DD: FC<DDProps> = (props) => {
-    return <div p2 line data-prop="t" {...props} />
-}
-const d1 = <DD p1 tw="bg-black/25" data-prop="more" flex fl />
-const d2 = <DD p1 flex />
-const d3 = <DD />
-const d4 = <DD p2 tw="bg-gray-100" />
+const DD: FC<PaddingProp> = (props) => {
+  return <div p2 line data-prop="t" {...props} />;
+};
+const d1 = <DD1 p1 tw="bg-black/25" data-prop="more" flex fl />;
+const d2 = <DD2 p1 flex />;
+const d3 = <DD3 />;
+const d4 = <DD4 p1 tw="bg-gray-100" />;
+const d5 = <DD5 placeholder-search />;
 

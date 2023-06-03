@@ -16,13 +16,13 @@ import React from 'react';
 /** p1 - p9 only one is allowed */
 
 // generic:
-
+/** p1 - p9 only one is allowed */
 // https://www.typescriptlang.org/docs/handbook/jsx.html
-
 const DD = props => {
   return <div data-prop="t" {...props} tw="p-2 flex items-center justify-start" />;
 };
-const d1 = <DD tw="p-1 bg-black/25  " data-prop="more" />;
-const d2 = <DD />;
-const d3 = <DD />;
-const d4 = <DD tw="bg-gray-100" />;
+const d1 = <DD1 tw="p-1 bg-black/25 flex items-center justify-start" data-prop="more" float />;
+const d2 = <DD2 tw="p-1 flex items-center justify-start" />;
+const d3 = <DD3 />;
+const d4 = <DD4 tw="p-1 bg-gray-100" />;
+const d5 = <DD5 placeholder="search" />;

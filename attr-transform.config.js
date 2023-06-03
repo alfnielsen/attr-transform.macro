@@ -5,10 +5,14 @@ module.exports = {
     {
       attrs: [
         {
-          matchName: /fl/,
-          replaceName: "flex",
-          collect: true,
-          remove: true,
+          matchName: "fl",
+          replaceName: "float",
+        },
+        {
+          matchName: /(\w+)\-(\w+)/,
+          dontMatchName: /data\-/,
+          replaceName: ({ match }) => `${match?.[1]}`,
+          replaceValue: ({ match }) => `${match?.[2]}`,
         },
         {
           name: "padding",
@@ -52,16 +56,20 @@ module.exports = {
           matchName: "tw",
           collect: true
         },
+      ],
+      actions: [
         {
           description: "Create tw attribute if not exists, and append collected values (including previous tw values)",
+          condition: ({ collectedAttributes }) => collectedAttributes.length > 0,
           createAttribute: "tw", // ensure tw attribute exists
-          replaceValue: ({ collectedAttributes, parentNodePath }) => {
-            console.log("tagMatch", parentNodePath.node.name.name, collectedAttributes.length) 
+          value: ({ collectedAttributes, parentNodePath }) => {
+            //console.log("tagMatch", parentNodePath.node.name.name, collectedAttributes.length)
+            //console.log("collectedAttributes", collectedAttributes.map((attr) => attr.nodePath.node.name.name).join(" "))
             const value = collectedAttributes.map((attr) => attr.value).join(" ")
             return value
           }
-        }
-      ],
+        },
+      ]      
     },
   ],  
 }
