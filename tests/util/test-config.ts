@@ -1,4 +1,4 @@
-import { AttrConfig, AttrTransformConfig, AttrTransformMacroParams } from "../types/attr-transform.config";
+import { AttrConfig, AttrTransformConfig, AttrTransformMacroParams } from "../../types/attr-transform.config";
 
 export const attrConfig = (attrs: AttrConfig[]): AttrTransformConfig => {
   return {

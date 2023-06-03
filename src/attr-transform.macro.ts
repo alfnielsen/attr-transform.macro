@@ -18,6 +18,13 @@ import type {
   ValidateValueFunc,
 } from "./attr-transform.config-types";
 
+
+let devMode = false;
+
+function log(...args: any[]) {
+  if (devMode) log(...args);
+}
+
 function getJsxAttributes(nodePath: NodePath<T.JSXElement>) {
   let attributes = nodePath.get("openingElement.attributes") as NodePath<T.JSXAttribute>[];
   if (!Array.isArray(attributes)) {
@@ -152,12 +159,12 @@ function loadConfig(params: AttrTransformMacroParams): AttrTransformConfig {
   } else {
     config = babelMacroConfig;
   }
-  console.log("config: ", config);
+  log("config: ", config);
 
   if (configFile) {
     const baseDirectory = process.cwd();
     //throw new MacroError("baseDirectory: " + baseDirectory)
-    //console.log("baseDirectory: " + baseDirectory, "configFile: " + configFile)
+    //log("baseDirectory: " + baseDirectory, "configFile: " + configFile)
     const configFilePath = join(baseDirectory, configFile);
     const configFromFile = require(configFilePath) as AttrTransformConfig;
     config = configFromFile;
@@ -202,6 +209,9 @@ function macro(params: AttrTransformMacroParams): void {
   const attributesToRemove: NodePath<T.JSXAttribute>[] = [];
 
   const elmConfig = loadConfig(params);
+  if (elmConfig.devMode) {
+    devMode = true;
+  }
 
   program.traverse({
     JSXElement(path) {
@@ -221,7 +231,7 @@ function macro(params: AttrTransformMacroParams): void {
       const postMatchActions: PostMatchAction[] = matchingElmConfig.actions ?? [];
 
       if (foundAttributes.length === 0 && postMatchActions.length === 0) return;
-      console.log(
+      log(
         cli.green(`#-------------------# elm: ${tagName} (actions: ${postMatchActions.length}) #--------------------#`)
       );
 
@@ -253,12 +263,12 @@ function macro(params: AttrTransformMacroParams): void {
         foundAttributes.forEach(step);
       });
 
-      console.log(cli.blackBright(`---------------------attributes: ${foundAttributes.length} --------------------`));
+      log(cli.blackBright(`---------------------attributes: ${foundAttributes.length} --------------------`));
       // Attributes Actions
       for (const foundProp of foundAttributes) {
-        console.log("Attr:", cli.cyan(foundProp.nodePath.node.name.name), " value: ", cli.greenBright(foundProp.value));
+        log("Attr:", cli.cyan(foundProp.nodePath.node.name.name), " value: ", cli.greenBright(foundProp.value));
         if (foundProp.attrConfig.replaceName || foundProp.attrConfig.replaceValue) {
-          console.log("Action:", cli.bgRed("replaceName and/or replaceValue"), foundProp.nodePath.node.name.name);
+          log("Action:", cli.bgRed("replaceName and/or replaceValue"), foundProp.nodePath.node.name.name);
           let newName: string | undefined;
           let id: T.JSXIdentifier | T.JSXNamespacedName | undefined;
           // Optional new name
@@ -308,7 +318,7 @@ function macro(params: AttrTransformMacroParams): void {
         }
       }
 
-      console.log(cli.blackBright(`---------------------actions: ${postMatchActions.length}--------------------`));
+      log(cli.blackBright(`---------------------actions: ${postMatchActions.length}--------------------`));
 
       const matchedActions = postMatchActions
         .map((action) => {
@@ -323,7 +333,7 @@ function macro(params: AttrTransformMacroParams): void {
             macroParams: params,
           };
           // conditions
-          console.log("Action::::", cli.cyan(matchAction.value));
+          log("Action::::", cli.cyan(matchAction.value));
           if (action.condition) {
             const match = action.condition(matchAction);
             if (!match) return;
@@ -339,13 +349,11 @@ function macro(params: AttrTransformMacroParams): void {
           return matchAction;
         })
         .filter((x) => !!x) as PostActionMatch[];
-      console.log(
-        cli.blackBright(`---------------------matched actions: ${matchedActions.length}--------------------`)
-      );
+      log(cli.blackBright(`---------------------matched actions: ${matchedActions.length}--------------------`));
 
       // Post match actions
       for (const action of matchedActions) {
-        console.log("Action:", cli.cyan(action.name ?? ""), "conditions: match");
+        log("Action:", cli.cyan(action.name ?? ""), "conditions: match");
 
         let value = action.value;
 

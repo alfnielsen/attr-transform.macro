@@ -74,7 +74,7 @@ type DDProps = PaddingProp & {
 };
 
 const DD: FC<PaddingProp> = (props) => {
-  return <div p2 line data-prop="t" {...props} />;
+  return <div p4 line data-prop="t" {...props} />;
 };
 const d1 = <DD1 p1 tw="bg-black/25" data-prop="more" flex fl />;
 const d2 = <DD2 p1 flex />;

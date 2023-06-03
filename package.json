@@ -1,10 +1,16 @@
 {
   "name": "attr-transform.macro",
   "version": "0.0.1",
-  "description": "jxs attribute pre-processor for twin.macro",
+  "description": "jxs attribute pre-processor",
   "main": "attr-transform.macro.js",
   "source": "src/attr-transform.macro.ts",
   "types": "types/attr-transform.macro.d.ts",
+  "files": [
+    "attr-transform.macro.js",
+    "attr-transform.macro.js.map",
+    "types/attr-transform.config.d.ts",
+    "types/attr-transform.macro.d.ts"
+  ],
   "scripts": {
     "dev": "concurrently yarn:dev:* -p none",
     "dev:macro": "NODE_ENV=dev nodemon -q --watch './src/**/*.ts' --watch package.json -x \"yarn build:macro\" --delay .2",

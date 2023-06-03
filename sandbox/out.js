@@ -19,7 +19,7 @@ import React from 'react';
 /** p1 - p9 only one is allowed */
 // https://www.typescriptlang.org/docs/handbook/jsx.html
 const DD = props => {
-  return <div data-prop="t" {...props} tw="p-2 flex items-center justify-start" />;
+  return <div data-prop="t" {...props} tw="p-4 flex items-center justify-start" />;
 };
 const d1 = <DD1 tw="p-1 bg-black/25 flex items-center justify-start" data-prop="more" float />;
 const d2 = <DD2 tw="p-1 flex items-center justify-start" />;

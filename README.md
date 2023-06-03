@@ -171,12 +171,13 @@ elms:[
 
 ## Logic steps and flow
 
-The transformation is done in 4 steps:
+The transformation is done in 5 steps:
 
 1. Collect all attributes that match the config
 2. Call validate-functions, value-functions, replace-function and match-funtions. (This is done after match to allow collect flag)
 3. Transform the attributes (replace name and/or value etc.)
-4. Remove attributes that are marked for "remove: true"
+4. Run actions on the element
+5. Remove attributes that are marked for "remove: true"
 
 ## Typescript difinitions
 
