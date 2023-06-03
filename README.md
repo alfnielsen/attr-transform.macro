@@ -366,7 +366,7 @@ export type AttrMatch = {
 
 attr-transform.config.js
 ```ts
-/** @type {import('../types/attr-transform.config.d.ts').AttrTransformConfig} */
+/** @type {import('attr-transform.macro/types/attr-transform.config.d.ts').AttrTransformConfig} */
 
 module.exports = {  
   elms: [    
