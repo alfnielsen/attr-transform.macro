@@ -35,11 +35,17 @@
     "url": "git+https://github.com/alfnielsen/attr-transform.macro.git"
   },
   "keywords": [
+    "babel-plugin-macros",
     "twin.macro",
     "tailwind",
+    "jsx",
+    "jsx-attribute",
+    "preprocessor",
+    "jsx-attribute-preprocessor",
+    "jsx-attribute-transform",
     "css-in-js"
   ],
-  "author": "",
+  "author": "alfnielsen",
   "license": "MIT",
   "bugs": {
     "url": "https://github.com/alfnielsen/attr-transform.macro/issues"
