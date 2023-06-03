@@ -8,6 +8,8 @@ export type AttrTransformMacroParams = Omit<MacroParams, "config"> & {
 export type AttrTransformConfig = {
   config?: string | false; // file name (default: attr-transform.config.js)
   devMode?: boolean;
+  devModePrintTranformation?: boolean;
+  devModeThrowTranformation?: boolean;
   elms?: ElmConfig[];
 };
 export type ElmConfig = {

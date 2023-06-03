@@ -416,6 +416,23 @@ function macro(params: AttrTransformMacroParams): void {
   attributesToRemove.forEach((attrPath) => {
     attrPath.remove();
   });
+
+  // Print transformation
+  if (elmConfig.devModePrintTranformation || elmConfig.devModeThrowTranformation) {
+    const print = require("@babel/generator").default;
+    const code = print(program.node).code;
+    let errorText =
+      cli.blackBright("\n\n--------------------- jsx-transform.macro (DevMode Transformed:) --------------------\n") +
+      code +
+      cli.blackBright("\n--------------------------------------------------------------\n\n");
+
+    if (elmConfig.devModePrintTranformation) {
+      console.log(errorText);
+    }
+    if (elmConfig.devModeThrowTranformation) {
+      throw new MacroError(errorText);
+    }
+  }
 }
 
 
