@@ -254,7 +254,18 @@ function macro(params: AttrTransformMacroParams): void {
         callValidators: (foundProp) => {
           if (foundProp?.validateFunction) {
             const errorMessage = foundProp.validateFunction(foundProp);
-            if (errorMessage) throw new MacroError(errorMessage);
+            if (errorMessage) {
+              console.log(
+                cli.redBright("❌") +
+                  cli.redBright(" Validation error") +
+                  cli.blackBright(" (jsx-transform.macro)") +
+                  cli.blackBright(" at ") +
+                  cli.cyan("line " + path.node.loc?.start.line) +
+                  cli.blackBright(" in " + params.state.filename)
+              );
+              console.log(cli.red(errorMessage));
+              throw new MacroError("jsx-transform.macro: validation error: ");
+            }
           }
         },
       };
