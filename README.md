@@ -249,56 +249,115 @@ const config =
 
 Full config types (interfaces):
 ```ts
-type AttrTransformConfig = {
-  config?: string // file name (default: attr-transform.config.js)
-  elms?: ElmConfig[]
-}
-type ElmConfig = {
-  match?: string | RegExp; // Optional match (If no match are provided, all elements are matched)
+export type AttrTransformMacroParams = Omit<MacroParams, "config"> & {
+  config?: AttrTransformConfig;
+};
+export type AttrTransformConfig = {
+  config?: string | false; // file name (default: attr-transform.config.js)
+  devMode?: boolean;
+  elms?: ElmConfig[];
+};
+export type ElmConfig = {
+  match?: string | RegExp; // Optional match // Special "*" matches all
   dontMatch?: string | RegExp; // Optional dontMatch
-  attrs: AttrConfig[]
-}
+  attrs: AttrConfig[];
+  actions?: PostMatchAction[];
+};
 
-type MatchValueFunc = (attrMatch: AttrMatch) => boolean
-type AttrValueFunc = (attrMatch: AttrMatch) => FullLegalAttributeValues
-type AttrStringValueFunc = (attrMatch: AttrMatch) => string
-type CreateValueFunc = (attrMatch: AttrMatch) => string | T.JSXAttribute
-type ValidateValueFunc = (attrMatch: AttrMatch) => string | undefined
+// elm/action methods
+export type ConditionFunc = (matchedAttributes: PostActionMatch) => boolean;
+export type ActionValueFunc = (postActionMatch: PostActionMatch) => FullLegalAttributeValues;
+export type CreateActionValueFunc = (postActionMatch: PostActionMatch) => string | T.JSXAttribute;
 
-type AttrConfig = {
+// attri methods
+export type MatchValueFunc = (attrMatch: AttrMatch) => boolean;
+export type AttrValueFunc = (attrMatch: AttrMatch) => FullLegalAttributeValues;
+export type AttrStringValueFunc = (attrMatch: AttrMatch) => string;
+export type CreateValueFunc = (attrMatch: AttrMatch) => string | T.JSXAttribute;
+export type ValidateValueFunc = (attrMatch: AttrMatch) => string | undefined;
+export type ActionFunc = (attrMatch: AttrMatch) => void;
+export type AttrConfig = {
   // a name for the config (for debugging and overview)
-  name?: string,
+  name?: string;
   // a name for the config (for debugging and overview)
-  description?: string,
+  description?: string;
   // a list of tags. Use for more complex match and replace (Like selecteing all collected with a tag)
-  tags?: string[],
-  // create the attribute if not exists
-  createAttribute?:
-  | string
-  | CreateValueFunc
+  tags?: string[];
   // mosth match the attribute name ( Fx: "padding" or "p1" or /p(1-9)/)
-  match?: string | RegExp
+  matchName?: string | RegExp;
   // most not match the attribute name ( Fx: "padding" or "p1" or /p(1-9)/)
-  dontMatch?: string | RegExp
+  dontMatchName?: string | RegExp;
   // Calcalate a value from the AttrMatch Object. ( Fx: "p-1" or ({match}) => `p-${match[1]}` )
-  value?:
-  | string
-  | AttrValueFunc
+  value?: string | AttrValueFunc;
   // Replace the value of the matched attribute with the calculated value
-  replaceValue?:
-  | string
-  | AttrValueFunc
-  replaceName?:
-  | string
-  | AttrStringValueFunc
+  replaceValue?: string | AttrValueFunc;
+  replaceName?: string | AttrStringValueFunc;
   // Validate the value (Throw MacroError if not valid)
-  validate?: ValidateValueFunc
+  validate?: ValidateValueFunc;
   // collect AttrMatch Object to be used by other attributes config (This is not need, mostly to indicate that it's macthed)
-  collect?: boolean
+  collect?: boolean;
   // remove this attribute after processing of all attributes
-  remove?: boolean
+  remove?: boolean;
+};
 
-}
+export type PostMatchAction = {
+  // a name for the config (for debugging and overview)
+  name?: string;
+  // a name for the config (for debugging and overview)
+  description?: string;
+  // a list of tags. Use for more complex match and replace (Like selecteing all collected with a tag)
+  tags?: string[];
+  // conditions
+  condition?: ConditionFunc;
+  // create the attribute if not exists
+  createAttribute?: string | CreateActionValueFunc;
+  replaceName?: string | AttrStringValueFunc;
+  value?: string | ActionValueFunc;
+  action?: ActionFunc;
+};
+
+export type LegalAttributeValues =
+  | T.JSXElement
+  | T.JSXFragment
+  | T.StringLiteral
+  | T.JSXExpressionContainer
+  | null
+  | undefined;
+export type FullLegalAttributeValues = string | number | boolean | LegalAttributeValues;
+// Meta data for the attribute use for calculate the value, validate etc in the config
+export type PostActionMatch = {
+  name: string;
+  value: FullLegalAttributeValues;
+  postMatchAction: PostMatchAction;
+  allMatchingAttributes: AttrMatch[]; // all props found for this element
+  collectedAttributes: AttrMatch[]; // all props found for this element
+  tagMatch?: RegExpMatchArray | null;
+  elmNodePath: NodePath<T.JSXOpeningElement>;
+  macroParams: AttrTransformMacroParams;
+};
+
+export type AttrMatch = {
+  name: string;
+  value: FullLegalAttributeValues;
+  attrConfig: AttrConfig;
+  matchFunction?: MatchValueFunc;
+  dontMatchFunction?: MatchValueFunc;
+  validateFunction?: ValidateValueFunc;
+  valueFunction?: AttrValueFunc;
+  match?: RegExpMatchArray | null;
+  tagMatch?: RegExpMatchArray | null;
+  allMatchingAttributes: AttrMatch[]; // all props found for this element
+  collectedAttributes: AttrMatch[]; // all props found for this element
+  // babel types for advanced usage
+  nodePath: NodePath<T.JSXAttribute>;
+  elmNodePath: NodePath<T.JSXOpeningElement>;
+  // babel types for super advanced usage
+  //state: Babel.PluginPass
+  macroParams: AttrTransformMacroParams;
+  collected?: boolean;
+  remove?: boolean;
+};
+
 ```
 
 
@@ -307,7 +366,7 @@ type AttrConfig = {
 
 attr-transform.config.js
 ```ts
-/** @type {import('../src/twin-atttributes.types.ts').TwinAttributeConfig} */
+/** @type {import('../types/attr-transform.config.d.ts').AttrTransformConfig} */
 
 module.exports = {  
   elms: [    
@@ -360,17 +419,20 @@ module.exports = {
           description: "Collect tw value if exists",
           match: "tw",
           collect: true
-        },
+        }
+      ],
+      actions: [
         {
           name: "Update Tw attribute",
           description: "Create tw attribute if not exists, and append collected values (including previous tw values)",
           createAttribute: "tw", // ensure tw attribute exists
+          condition: ({ collectedAttributes }) => collectedAttributes.length > 0,
           replaceValue: ({ collectedAttributes }) => {
             const value = collectedAttributes.map((attr) => attr.value).join(" ")
             return value
           }
         }
-      ],
+      ]
     },
   ],  
 }
