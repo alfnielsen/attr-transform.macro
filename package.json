@@ -1,6 +1,6 @@
 {
   "name": "attr-transform.macro",
-  "version": "0.0.7",
+  "version": "0.0.8",
   "description": "jsx attribute pre-processor",
   "main": "attr-transform.macro.js",
   "source": "src/attr-transform.macro.ts",

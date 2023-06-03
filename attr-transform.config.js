@@ -1,6 +1,8 @@
 /** @type {import('./types/attr-transform.config.js').AttrTransformConfig} */
 
 module.exports = {  
+  //devModePrintTranformation: true,
+  //devModeThrowTranformation: true,
   elms: [
     {
       attrs: [

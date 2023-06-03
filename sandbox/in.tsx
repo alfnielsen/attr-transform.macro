@@ -77,7 +77,7 @@ const DD: FC<PaddingProp> = (props) => {
   return <div p4 line data-prop="t" {...props} />;
 };
 const d1 = <DD1 p1 tw="bg-black/25" data-prop="more" flex fl />;
-const d2 = <DD2 p1 p2 flex />;
+const d2 = <DD2 p1 flex />;
 const d3 = <DD3 />;
 const d4 = <DD4 p1 tw="bg-gray-100" />;
 const d5 = <DD5 placeholder-search />;
