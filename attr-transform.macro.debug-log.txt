@@ -105,6 +105,17 @@ line
 >> Action:                                                                      
 ## -- Elm action: createAttribute                                               
 ## -- attribute added                                                           
+{
+  type: "JSXAttribute",
+  name: {
+    type: "JSXIdentifier",
+    name: "tw"
+  },
+  value: {
+    type: "StringLiteral",
+    value: "p-4 flex items-center justify-start"
+  }
+}
 ## traverse - JSXElement: DD1 - Line: 79:11 to 79:11 ---------------------------
 79: const d1 = <DD1 p1 tw="bg-black/25" data-prop="more" flex fl />;
 ## -- Found 4 attributes: p1, tw, flex, fl                                      
@@ -135,6 +146,7 @@ float
 >> Action:                                                                      
 ## -- Elm action: createAttribute                                               
 ## -- existing attribute replaced                                               
+tw="p-1 bg-black/25 flex items-center justify-start"
 ## traverse - JSXElement: DD2 - Line: 80:11 to 80:11 ---------------------------
 80: const d2 = <DD2 p1 flex />;
 ## -- Found 2 attributes: p1, flex                                              
@@ -153,6 +165,17 @@ flex
 >> Action:                                                                      
 ## -- Elm action: createAttribute                                               
 ## -- attribute added                                                           
+{
+  type: "JSXAttribute",
+  name: {
+    type: "JSXIdentifier",
+    name: "tw"
+  },
+  value: {
+    type: "StringLiteral",
+    value: "p-1 flex items-center justify-start"
+  }
+}
 ## traverse - JSXElement: DD3 - Line: 81:11 to 81:11 ---------------------------
 81: const d3 = <DD3 />;
 ## -- Found 0 attributes:                                                       
@@ -178,6 +201,7 @@ tw="bg-gray-100"
 >> Action:                                                                      
 ## -- Elm action: createAttribute                                               
 ## -- existing attribute replaced                                               
+tw="p-1 bg-gray-100"
 ## traverse - JSXElement: DD5 - Line: 83:11 to 83:11 ---------------------------
 83: const d5 = <DD5 placeholder-search />;
 ## -- Found 1 attributes: placeholder-search                                    

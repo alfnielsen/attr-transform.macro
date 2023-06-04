@@ -5,7 +5,7 @@ import { MacroError, createMacro } from "babel-plugin-macros";
 import type { AttrTransformMacroParams } from "./attr-transform.config-types";
 
 import { Logger } from "./logger";
-import { getSourceFromNode } from "./getSourceFromNode";
+import { getSourceFromNodePath } from "./getSourceFromNode";
 import { loadConfig } from "./loadConfig";
 import { traverseJSXElement } from "./traverseJSXElement";
 
@@ -49,7 +49,7 @@ function macro(params: AttrTransformMacroParams): void {
 
   if (attrTransformConfig.devMode) {
     const devMode = attrTransformConfig.devMode;
-    const code = getSourceFromNode(program);
+    const code = getSourceFromNodePath(program);
     log.msg(`\n\n`);
     log.header(`Transformed Code`);
     log.note(`jsx-transform.macro (DevMode Transformed)`);

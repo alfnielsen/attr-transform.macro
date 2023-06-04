@@ -1,5 +1,5 @@
 import clc from "cli-color";
-import { getSourceFromNode } from "getSourceFromNode";
+import { getSourceFromNode, getSourceFromNodePath } from "getSourceFromNode";
 import stringify from "x-stringify";
 
 export type Colors =
@@ -63,9 +63,15 @@ export class Logger {
     }
   }
 
-  node(nodePath: any, color: Colors = "white") {
+  nodePath(nodePath: any, color: Colors = "white") {
     if (this.enabled) {
-      const code = getSourceFromNode(nodePath);
+      const code = getSourceFromNodePath(nodePath);
+      this.msg(code, color);
+    }
+  }
+  node(node: any, color: Colors = "white") {
+    if (this.enabled) {
+      const code = getSourceFromNode(node);
       this.msg(code, color);
     }
   }

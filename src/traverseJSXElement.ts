@@ -16,6 +16,7 @@ import { FindMatchingAttributesConfig, MatchElm, getJsxAttributes } from "./node
 import { replaceNameAndOrValue } from "./attr-actions";
 
 import { Logger } from "./logger";
+import { generateNode } from "getSourceFromNode";
 
 export function traverseJSXElement(
   path: NodePath<T.JSXElement>,
@@ -119,7 +120,7 @@ export function traverseJSXElement(
   // Attributes Actions
   for (const foundProp of foundAttributes) {
     log.subheader(`Attr: ${foundProp.nodePath.node.name.name} - Source:`, "cyan");
-    log.node(foundProp.nodePath);
+    log.nodePath(foundProp.nodePath);
     log.subheader(`Value from attr config: ${foundProp.value}`, "blackBright");
     if (foundProp.attrConfig.replaceName || foundProp.attrConfig.replaceValue) {
       replaceNameAndOrValue(foundProp, t, log);
@@ -194,9 +195,11 @@ export function traverseJSXElement(
             // Add new attribute
             elm.node.attributes.push(newAttr);
             log.note(`attribute added`);
+            log.object(newAttr);
           } else if (action.value) {
             existingAttribute.replaceWith(newAttr);
             log.note(`existing attribute replaced`);
+            log.nodePath(existingAttribute);
           }
         }
       }
