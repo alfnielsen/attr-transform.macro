@@ -191,13 +191,6 @@ See TS doc for jsx: [https://www.typescriptlang.org/docs/handbook/jsx.html](http
 // ./types/attr-typing.d.ts
 declare global {
   namespace JSX {
-
-    // interface ElementAttributesProperty {
-    //     p1?: boolean
-    //     flex?: boolean
-    //     line?: boolean
-    // }
-
     interface IntrinsicAttributes {
       /** tw: "flex" */
       flex?: boolean;
@@ -208,6 +201,26 @@ declare global {
       /** tw: "p2" */
       p2?: boolean;
     }
+  }
+}
+
+```
+
+
+For React app (Usin `react-scripts` - like `create-react-app`) that includes the `react-app-env.d.ts` file, 
+you can add the typing there.
+
+```ts
+/// <reference types="react-scripts" />
+
+declare namespace React {
+  interface Attributes {
+    /** tw: "p1" */
+    p1?: boolean;
+    /** tw: "p2" */
+    p2?: boolean;
+    /** flex: "flex item-center" (Work in combination with "col") */
+    flex?: boolean;
   }
 }
 
