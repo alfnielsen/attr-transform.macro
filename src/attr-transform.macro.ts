@@ -5,6 +5,7 @@ import { MacroError, createMacro } from "babel-plugin-macros";
 import type { AttrTransformMacroParams } from "./attr-transform.config-types";
 
 import { Logger } from "./logger";
+import { getSourceFromNode } from "./getSourceFromNode";
 import { loadConfig } from "./loadConfig";
 import { traverseJSXElement } from "./traverseJSXElement";
 
@@ -13,6 +14,7 @@ const log = new Logger();
 function macro(params: AttrTransformMacroParams): void {
   const t = params.babel.types;
   const program = params.state.file.path;
+  log.enabled = true;
   log.header(`attr-transform.macro`);
   log.note(`file: ${params.state.filename}`);
   const content = params.state.file.code;
@@ -21,6 +23,10 @@ function macro(params: AttrTransformMacroParams): void {
   const attributesToRemove: NodePath<T.JSXAttribute>[] = [];
 
   const attrTransformConfig = loadConfig(params, log);
+
+  if (!attrTransformConfig.devMode) {
+    log.enabled = false;
+  }
 
   log.header(`Using Config`);
   log.object(attrTransformConfig);
@@ -43,8 +49,7 @@ function macro(params: AttrTransformMacroParams): void {
 
   if (attrTransformConfig.devMode) {
     const devMode = attrTransformConfig.devMode;
-    const print = require("@babel/generator").default;
-    const code = print(program.node).code;
+    const code = getSourceFromNode(program);
     log.msg(`\n\n`);
     log.header(`Transformed Code`);
     log.note(`jsx-transform.macro (DevMode Transformed)`);

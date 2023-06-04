@@ -26,3 +26,4 @@ const d2 = <DD2 tw="p-1 flex items-center justify-start" />;
 const d3 = <DD3 />;
 const d4 = <DD4 tw="p-1 bg-gray-100" />;
 const d5 = <DD5 placeholder="search" />;
+const e1 = <ActionGroupRow single title="Database Tables" icon={<DbSqlIcon />} section="database-tables"></ActionGroupRow>;

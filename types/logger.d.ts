@@ -10,12 +10,15 @@ export declare class Logger {
     showUndefined: boolean;
     showNull: boolean;
     lineWith: number;
+    enabled: boolean;
     stringify(obj: object, maxDepth?: number): string;
     object(obj: any, color?: Colors, maxDepth?: number): void;
+    node(nodePath: any, color?: Colors): void;
     msg(message: string, color?: Colors): void;
     contentLine(line: number, color?: Colors): void;
     note(message: string, color?: Colors): void;
     header(message: string, color?: Colors): void;
+    subheader(message: string, color?: Colors): void;
     end(color?: Colors): void;
     line(message: string, prefix: string | undefined, header: boolean, color?: Colors): void;
     getColorLog(): string;

@@ -1,4 +1,5 @@
 import clc from "cli-color";
+import { getSourceFromNode } from "getSourceFromNode";
 import stringify from "x-stringify";
 
 export type Colors =
@@ -44,6 +45,8 @@ export class Logger {
   showNull = true;
   lineWith = 80;
 
+  enabled = false;
+
   stringify(obj: object, maxDepth: number = this.maxDepth) {
     return stringify(obj, {
       indent: this.indent,
@@ -54,34 +57,61 @@ export class Logger {
   }
 
   object(obj: any, color: Colors = "white", maxDepth?: number) {
-    let json = this.stringify(obj, maxDepth);
-    this.msg(json, color);
+    if (this.enabled) {
+      let json = this.stringify(obj, maxDepth);
+      this.msg(json, color);
+    }
   }
+
+  node(nodePath: any, color: Colors = "white") {
+    if (this.enabled) {
+      const code = getSourceFromNode(nodePath);
+      this.msg(code, color);
+    }
+  }
+
   msg(message: string, color: Colors = "white") {
-    this.logLines.push({ msg: message, color });
+    if (this.enabled) {
+      this.logLines.push({ msg: message, color });
+    }
   }
   contentLine(line: number, color: Colors = "white") {
-    let message = `${line}: ` + this.content.split("\n")[line - 1];
-    this.logLines.push({ msg: message, color });
+    if (this.enabled) {
+      let message = `${line}: ` + this.content.split("\n")[line - 1];
+      this.logLines.push({ msg: message, color });
+    }
   }
   note(message: string, color: Colors = "blackBright") {
-    this.line(message, "---- # ", false, color);
+    if (this.enabled) {
+      this.line(message, "## -- ", false, color);
+    }
   }
   header(message: string, color: Colors = "cyan") {
-    this.line(message, "---- ", true, color);
+    if (this.enabled) {
+      this.line(message, "## ", true, color);
+    }
+  }
+  subheader(message: string, color: Colors = "cyan") {
+    if (this.enabled) {
+      this.line(message, ">> ", false, color);
+    }
   }
   end(color: Colors = "blackBright") {
-    this.line("", "---- - - - - -", true, color);
+    if (this.enabled) {
+      this.line("", "---- - - - - -", true, color);
+    }
   }
   line(message: string, prefix = "", header: boolean, color: Colors = "white") {
-    let msg = `${prefix}${message} `;
-    let len = msg.length;
-    if (len < this.lineWith) {
-      let space = this.lineWith - len;
-      let char = header ? "-" : " ";
-      msg += char.repeat(space);
+    if (this.enabled) {
+      let msg = `${prefix}${message} `;
+      let len = msg.length;
+      if (len < this.lineWith) {
+        let space = this.lineWith - len;
+        let char = header ? "-" : " ";
+        msg += char.repeat(space);
+      }
+      this.logLines.push({ msg, color });
     }
-    this.logLines.push({ msg, color });
   }
 
   getColorLog() {

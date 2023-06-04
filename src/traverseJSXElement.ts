@@ -118,14 +118,16 @@ export function traverseJSXElement(
   log.note(`Run attribute actions (count: ${foundAttributes.length})`, "blackBright");
   // Attributes Actions
   for (const foundProp of foundAttributes) {
-    log.header(`Attr: ${foundProp.nodePath.node.name.name}`, "cyan");
-    log.note(`Value from attr: ${foundProp.value}`, "blackBright");
+    log.subheader(`Attr: ${foundProp.nodePath.node.name.name} - Source:`, "cyan");
+    log.node(foundProp.nodePath);
+    log.subheader(`Value from attr config: ${foundProp.value}`, "blackBright");
     if (foundProp.attrConfig.replaceName || foundProp.attrConfig.replaceValue) {
       replaceNameAndOrValue(foundProp, t, log);
     }
+    log.note(`End attribute parsing`);
   }
 
-  log.note(`Run elm actions conditions`, "blackBright");
+  log.subheader(`Run elm actions conditions`, "blackBright");
 
   const matchedActions = postMatchActions
     .map((action) => {
@@ -162,7 +164,7 @@ export function traverseJSXElement(
 
   // Post match actions
   for (const action of matchedActions) {
-    log.header(`Action: ${action.name ?? " (no name)"}`, "cyan");
+    log.subheader(`Action: ${action.name ?? " (no name)"}`, "cyan");
 
     let value = action.value;
 

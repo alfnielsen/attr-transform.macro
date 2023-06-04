@@ -82,3 +82,7 @@ const d3 = <DD3 />;
 const d4 = <DD4 p1 tw="bg-gray-100" />;
 const d5 = <DD5 placeholder-search />;
 
+const e1 = (
+  <ActionGroupRow single title="Database Tables" icon={<DbSqlIcon />} section="database-tables"></ActionGroupRow>
+);
+
