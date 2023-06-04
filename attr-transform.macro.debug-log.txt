@@ -1,0 +1,255 @@
+---- attr-transform.macro ------------------------------------------------------
+---- # file: /Users/alfnielsen/Code/attr-transform.macro/sandbox/in.tsx         
+---- Config --------------------------------------------------------------------
+---- # (from babel-macro-pluing under 'attr-transform' section)                 
+{
+}
+---- - - - - - -----------------------------------------------------------------
+---- # Loading config from file:                                                
+---- # path: /Users/alfnielsen/Code/attr-transform.macro/attr-transform.config.js 
+---- Using Config --------------------------------------------------------------
+{
+  devMode: {
+    maxDepth: 5,
+    printToFile: true
+  },
+  elms: [
+    {
+      attrs: [
+        {
+          matchName: "fl",
+          replaceName: "float"
+        },
+        {
+          matchName: "[RegExp: /(\w+)\-(\w+)/]",
+          dontMatchName: "[RegExp: /data\-/]",
+          replaceName: ({ match }) => `${match?.[1]}`,
+          replaceValue: ({ match }) => `${match?.[2]}`
+        },
+        {
+          name: "padding",
+          matchName: "[RegExp: /p([0-9])/]",
+          value: ({ match }) => `p-${match?.[1]}`,
+          validate: ({ collectedAttributes }) => {
+            const countPadding = collectedAttributes.filter((attr) => attr.attrConfig.name === "padding").length
+            if (countPadding > 1) {
+              return "You can't use more than one 'tw padding ( p1, p2, ..., p9 )' on the same element"
+            }
+          },
+          collect: true,
+          remove: true
+        },
+        {
+          matchName: "[RegExp: /(red|blue|green)/]",
+          value: ({ match }) => `text-${match?.[1]}-600`,
+          collect: true,
+          remove: true
+        },
+        {
+          matchName: "flex",
+          validate: (matchAttr) => {
+            const notAllowed = matchAttr.allMatchingAttributes.some((attr) => attr.name === "line")
+            if (notAllowed) {
+              return "You can't use both 'flex' and 'line' on the same element"
+            }
+          },
+          value: "flex items-center justify-start",
+          collect: true,
+          remove: true
+        },
+        {
+          matchName: "line",
+          value: "flex items-center justify-start",
+          collect: true,
+          remove: true
+        },
+        {
+          description: "Collect tw value if exists",
+          matchName: "tw",
+          collect: true
+        }
+      ],
+      actions: [
+        {
+          description: "Create tw attribute if not exists, and append collected values (including previous tw values)",
+          condition: ({ collectedAttributes }) => collectedAttributes.length > 0,
+          createAttribute: "tw",
+          value: ({ collectedAttributes, parentNodePath }) => {
+            //console.log("tagMatch", parentNodePath.node.name.name, collectedAttributes.length)
+            //console.log("collectedAttributes", collectedAttributes.map((attr) => attr.nodePath.node.name.name).join(" "))
+            const value = collectedAttributes.map((attr) => attr.value).join(" ")
+            return value
+          }
+        }
+      ]
+    }
+  ]
+}
+---- - - - - - -----------------------------------------------------------------
+---- Start traverse ast --------------------------------------------------------
+---- traverse - JSXElement: div - Line: 77:9 to 77:9 ---------------------------
+77:   return <div p4 line data-prop="t" {...props} />;
+---- # Found 2 attributes: p4, line                                             
+---- # Run attribute actions (count: 2)                                         
+---- Attr: p4 ------------------------------------------------------------------
+---- # Value from attr: p-4                                                     
+---- Attr: line ----------------------------------------------------------------
+---- # Value from attr: flex items-center justify-start                         
+---- # Run elm actions conditions                                               
+---- # Found 1 Elm actions:                                                     
+---- # Macthed Elm action  - (condition met) (count: 1)                         
+---- Action:  ------------------------------------------------------------------
+---- # Elm action: createAttribute                                              
+---- # attribute added                                                          
+---- traverse - JSXElement: DD1 - Line: 79:11 to 79:11 -------------------------
+79: const d1 = <DD1 p1 tw="bg-black/25" data-prop="more" flex fl />;
+---- # Found 4 attributes: p1, tw, flex, fl                                     
+---- # Run attribute actions (count: 4)                                         
+---- Attr: p1 ------------------------------------------------------------------
+---- # Value from attr: p-1                                                     
+---- Attr: tw ------------------------------------------------------------------
+---- # Value from attr: bg-black/25                                             
+---- Attr: flex ----------------------------------------------------------------
+---- # Value from attr: flex items-center justify-start                         
+---- Attr: fl ------------------------------------------------------------------
+---- # Value from attr:                                                         
+---- # Attr action: replaceName and/or replaceValue                             
+---- # newName: float                                                           
+---- # Run elm actions conditions                                               
+---- # Found 1 Elm actions:                                                     
+---- # Macthed Elm action  - (condition met) (count: 1)                         
+---- Action:  ------------------------------------------------------------------
+---- # Elm action: createAttribute                                              
+---- # existing attribute replaced                                              
+---- traverse - JSXElement: DD2 - Line: 80:11 to 80:11 -------------------------
+80: const d2 = <DD2 p1 flex />;
+---- # Found 2 attributes: p1, flex                                             
+---- # Run attribute actions (count: 2)                                         
+---- Attr: p1 ------------------------------------------------------------------
+---- # Value from attr: p-1                                                     
+---- Attr: flex ----------------------------------------------------------------
+---- # Value from attr: flex items-center justify-start                         
+---- # Run elm actions conditions                                               
+---- # Found 1 Elm actions:                                                     
+---- # Macthed Elm action  - (condition met) (count: 1)                         
+---- Action:  ------------------------------------------------------------------
+---- # Elm action: createAttribute                                              
+---- # attribute added                                                          
+---- traverse - JSXElement: DD3 - Line: 81:11 to 81:11 -------------------------
+81: const d3 = <DD3 />;
+---- # Found 0 attributes:                                                      
+---- # Run attribute actions (count: 0)                                         
+---- # Run elm actions conditions                                               
+---- # Found 1 Elm actions:                                                     
+---- # Macthed Elm action  - (condition met) (count: 0)                         
+---- traverse - JSXElement: DD4 - Line: 82:11 to 82:11 -------------------------
+82: const d4 = <DD4 p1 tw="bg-gray-100" />;
+---- # Found 2 attributes: p1, tw                                               
+---- # Run attribute actions (count: 2)                                         
+---- Attr: p1 ------------------------------------------------------------------
+---- # Value from attr: p-1                                                     
+---- Attr: tw ------------------------------------------------------------------
+---- # Value from attr: bg-gray-100                                             
+---- # Run elm actions conditions                                               
+---- # Found 1 Elm actions:                                                     
+---- # Macthed Elm action  - (condition met) (count: 1)                         
+---- Action:  ------------------------------------------------------------------
+---- # Elm action: createAttribute                                              
+---- # existing attribute replaced                                              
+---- traverse - JSXElement: DD5 - Line: 83:11 to 83:11 -------------------------
+83: const d5 = <DD5 placeholder-search />;
+---- # Found 1 attributes: placeholder-search                                   
+---- # Run attribute actions (count: 1)                                         
+---- Attr: placeholder-search --------------------------------------------------
+---- # Value from attr: search                                                  
+---- # Attr action: replaceName and/or replaceValue                             
+[attrConfig.replaceName function]
+---- # newName: placeholder                                                     
+[attrConfig.replaceValue funcrion]
+[newValue: string]: search
+---- # Run elm actions conditions                                               
+---- # Found 1 Elm actions:                                                     
+---- # Macthed Elm action  - (condition met) (count: 0)                         
+
+
+
+---- Transformed Code ----------------------------------------------------------
+---- # jsx-transform.macro (DevMode Transformed)                                
+/**
+ * Twin Sandbox (twin-attributes)
+ * A place to test the output twin creates.
+ * Good for general testing or for developing new features.
+ *
+ * Getting started
+ * 1. Run the script: `npm run dev`
+ * 2. Make a change to this file or to a file in the `src` folder
+ * 3. Check `sandbox/out.tsx` for the macro output
+ */
+
+import './../attr-transform.macro.js';
+import React, { FC, JSX as RJSX } from 'react';
+
+// Inline tw
+
+interface PaddingPropList {
+  p1?: boolean;
+  p2?: boolean;
+  p3?: boolean;
+  p4?: boolean;
+  p5?: boolean;
+  p6?: boolean;
+  p7?: boolean;
+  p8?: boolean;
+  p9?: boolean;
+}
+/** p1 - p9 only one is allowed */
+type PaddingProp = RequireOnlyOne<PaddingPropList>;
+
+// generic:
+/** p1 - p9 only one is allowed */
+type RequireOnlyOne<T, Keys extends keyof T = keyof T> = Pick<T, Exclude<keyof T, Keys>> & { [K in Keys]-?: Required<Pick<T, K>> & Partial<Record<Exclude<Keys, K>, undefined>> }[Keys];
+type ZeroOrOneProp<T, Keys extends keyof T = keyof T> = T extends Partial<T> ? RequireOnlyOne<T, Keys> : T;
+
+// https://www.typescriptlang.org/docs/handbook/jsx.html
+declare global {
+  namespace JSX {
+    interface IntrinsicElements {
+      div: React.DetailedHTMLProps<React.HTMLAttributes<HTMLDivElement>, HTMLDivElement>;
+      box: React.DetailedHTMLProps<React.HTMLAttributes<HTMLDivElement>, HTMLDivElement>;
+    }
+
+    // interface ElementAttributesProperty {
+    //     p1?: boolean
+    //     flex?: boolean
+    //     line?: boolean
+    // }
+    interface IntrinsicAttributes {
+      /** tw: "flex" */
+      flex?: boolean;
+      /** tw: "flex items-center justify-start" */
+      line?: boolean;
+      /** tw: "p1" */
+      p1?: boolean;
+      /** tw: "p2" */
+      p2?: boolean;
+    }
+  }
+}
+type DDProps = PaddingProp & {
+  children?: React.ReactNode;
+  className?: string;
+  tw?: string;
+};
+const DD: FC<PaddingProp> = props => {
+  return <div data-prop="t" {...props} tw="p-4 flex items-center justify-start" />;
+};
+const d1 = <DD1 tw="p-1 bg-black/25 flex items-center justify-start" data-prop="more" float />;
+const d2 = <DD2 tw="p-1 flex items-center justify-start" />;
+const d3 = <DD3 />;
+const d4 = <DD4 tw="p-1 bg-gray-100" />;
+const d5 = <DD5 placeholder="search" />;
+
+
+---- - - - - - -----------------------------------------------------------------
+
+

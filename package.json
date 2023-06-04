@@ -1,6 +1,6 @@
 {
   "name": "attr-transform.macro",
-  "version": "0.0.9",
+  "version": "0.0.10",
   "description": "jsx attribute pre-processor",
   "main": "attr-transform.macro.js",
   "source": "src/attr-transform.macro.ts",
@@ -91,6 +91,7 @@
     "ts-jest": "^29.1.0",
     "ts-node": "^10.9.1",
     "twin.macro": "^3.3.1",
-    "typescript": "^5.0.4"
+    "typescript": "^5.0.4",
+    "x-stringify": "^0.0.1"
   }
 }

@@ -3,6 +3,11 @@
 module.exports = {  
   //devModePrintTranformation: true,
   //devModeThrowTranformation: true,
+  devMode: {
+    maxDepth: 5,
+    printToFile: true,
+  
+  },
   elms: [
     {
       attrs: [

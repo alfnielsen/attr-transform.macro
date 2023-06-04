@@ -1,17 +1,24 @@
-import type { NodePath, types as T } from "@babel/core";
-
 import type { MacroParams } from "babel-plugin-macros";
+import type { NodePath, types as T } from "@babel/core";
 
 export type AttrTransformMacroParams = Omit<MacroParams, "config"> & {
   config?: AttrTransformConfig;
 };
+
 export type AttrTransformConfig = {
   config?: string | false; // file name (default: attr-transform.config.js)
-  devMode?: boolean;
-  devModePrintTranformation?: boolean;
-  devModeThrowTranformation?: boolean;
+  devMode?: AttrTransformConfigDebug;
   elms?: ElmConfig[];
 };
+
+export type AttrTransformConfigDebug = {
+  logToConsole?: boolean;
+  logWithThrow?: boolean;
+  printToFile?: boolean | string;
+  maxDepth?: number;
+  colors?: boolean;
+};
+
 export type ElmConfig = {
   match?: string | RegExp; // Optional match // Special "*" matches all
   dontMatch?: string | RegExp; // Optional dontMatch
