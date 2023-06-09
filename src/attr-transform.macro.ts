@@ -50,9 +50,13 @@ function macro(params: AttrTransformMacroParams): void {
   if (attrTransformConfig.devMode) {
     const devMode = attrTransformConfig.devMode;
     const code = getSourceFromNodePath(program);
+    if (devMode.onlyTranformation) {
+      log.logLines = [] // clear log
+    }
     log.msg(`\n\n`);
     log.header(`Transformed Code`);
     log.note(`jsx-transform.macro (DevMode Transformed)`);
+    log.note(`file: ${params.state.filename}`)
     log.msg(code, "white");
     log.msg("\n");
     log.end();

@@ -1,12 +1,10 @@
 /** @type {import('./types/attr-transform.config.js').AttrTransformConfig} */
 
-module.exports = {  
-  //devModePrintTranformation: true,
-  //devModeThrowTranformation: true,
+module.exports = {
   devMode: {
     maxDepth: 5,
     printToFile: true,
-  
+    onlyTranformation: true,
   },
   elms: [
     {
@@ -61,7 +59,7 @@ module.exports = {
         {
           description: "Collect tw value if exists",
           matchName: "tw",
-          collect: true
+          collect: true,
         },
       ],
       actions: [
@@ -74,11 +72,11 @@ module.exports = {
             //console.log("collectedAttributes", collectedAttributes.map((attr) => attr.nodePath.node.name.name).join(" "))
             const value = collectedAttributes.map((attr) => attr.value).join(" ")
             return value
-          }
+          },
         },
-      ]      
+      ],
     },
-  ],  
+  ],
 }
 
 

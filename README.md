@@ -49,7 +49,7 @@ import "twin.macro"
 ## Examples of possible transformation
 
 The config is a list of elements and attributes to transform,
-including a list of options for the transformation.
+including a list of options and actions for the transformation.
 
 
 ```ts
@@ -59,7 +59,7 @@ let to = <Button onClick={} />;
 
 // config:
 elms:[
-  attr:[
+  attrs:[
     {
       matchName: /onclick/i,
       replaceName: "onClick"
@@ -74,7 +74,7 @@ let from = <div tw="flex-col" />;
 let to = <div tw="flex flex-col" />;
 // config:
 elms:[
-  attr:[
+  attrs:[
     {
       matchName: "tw",
       replaceName: ({value}) => {
@@ -95,7 +95,7 @@ let from = <div name-per data-prop="t" />;
 let to = <div name="per" data-prop="t" />;
 // config:
 elms:[
-  attr:[
+  attrs:[
     {
       matchName: /(\w)\-(\w)/,
       dontMatchName: /data\-/,
@@ -108,12 +108,12 @@ elms:[
 
 
 ```ts
-// Collect and transfor (including remove atttribus and create new attribute)
+// Collect and transform (including remove attributes and create new attribute)
 let from = <div flex between p1 />;
 let to = <div tw="flex items-center justify-between p-1" />;
 // config:
 elms:[
-  attr:[
+  attrs:[
     {
       matchName: "flex",
       collect: true,
@@ -207,7 +207,7 @@ declare global {
 ```
 
 
-For React app (Usin `react-scripts` - like `create-react-app`) that includes the `react-app-env.d.ts` file, 
+For React app (Using `react-scripts` - like `create-react-app`) that includes the `react-app-env.d.ts` file, 
 you can add the typing there.
 
 ```ts
@@ -265,11 +265,21 @@ Full config types (interfaces):
 export type AttrTransformMacroParams = Omit<MacroParams, "config"> & {
   config?: AttrTransformConfig;
 };
+
 export type AttrTransformConfig = {
   config?: string | false; // file name (default: attr-transform.config.js)
-  devMode?: boolean;
+  devMode?: AttrTransformConfigDebug;
   elms?: ElmConfig[];
 };
+
+export type AttrTransformConfigDebug = {
+  logToConsole?: boolean;
+  logWithThrow?: boolean;
+  printToFile?: boolean | string;
+  maxDepth?: number;
+  colors?: boolean;
+};
+
 export type ElmConfig = {
   match?: string | RegExp; // Optional match // Special "*" matches all
   dontMatch?: string | RegExp; // Optional dontMatch
@@ -374,7 +384,6 @@ export type AttrMatch = {
 ```
 
 
-
 ## Full config example
 
 attr-transform.config.js
@@ -389,7 +398,7 @@ module.exports = {
       attrs: [
         {
           name: "tw padding",
-          match: /p([0-9])/,
+          matchName: /p([0-9])/,
           value: ({ match }) => `p-${match?.[1]}`,
           validate: ({ collectedAttributes }) => {
             const countPadding = collectedAttributes.filter((attr) => attr.attrConfig.name === "tw padding").length
@@ -402,14 +411,14 @@ module.exports = {
         },
         {
           name: "tw colors",
-          match: /(red|blue|green)/,
+          matchName: /(red|blue|green)/,
           value: ({ match }) => `text-${match?.[1]}-600`,
           collect: true,
           remove: true,
         },
         {
           name: "flex",
-          match: "flex",
+          matchName: "flex",
           validate: (matchAttr) => {
             const notAllowed = matchAttr.allMatchingAttributes.some((attr) => attr.name === "line")
             if (notAllowed) {
@@ -422,7 +431,7 @@ module.exports = {
         },
         {
           name: "standard line element",
-          match: "line",
+          matchName: "line",
           value: "flex items-center justify-start",
           collect: true,
           remove: true,
@@ -430,7 +439,7 @@ module.exports = {
         {
           name: "tw attribute",
           description: "Collect tw value if exists",
-          match: "tw",
+          matchName: "tw",
           collect: true
         }
       ],
@@ -439,8 +448,8 @@ module.exports = {
           name: "Update Tw attribute",
           description: "Create tw attribute if not exists, and append collected values (including previous tw values)",
           createAttribute: "tw", // ensure tw attribute exists
-          condition: ({ collectedAttributes }) => collectedAttributes.length > 0,
-          replaceValue: ({ collectedAttributes }) => {
+          condition: ({ collectedAttributes }) => collectedAttributes.length > 1,
+          value: ({ collectedAttributes }) => {
             const value = collectedAttributes.map((attr) => attr.value).join(" ")
             return value
           }
@@ -452,3 +461,39 @@ module.exports = {
 
 
 ``` 
+
+
+
+## Debug transformation (debug configuration)
+
+You can add `devMode` in the config file to debug and test the configuration (and transformation)
+
+The standard `babal-plugin-macros` dont allow console.log so you must either change that (allow console.log - I do not know how to do that!!)  
+or hack the console by trowing an error (The plugin will, like when validation config fails, throw an MacroError)
+
+
+The easiest way to debug is to use `printToFile` config.  
+It will create a new file `attr-transform.macro.debug-log.txt` in the root of your project when transformation is run.
+
+It contains the ussed config, debug info of found elements and attributes, and the full transformed file content.
+
+
+All debug optiosn: 
+
+  - `colors` add console colors so it should only be used with logToConsole or logWithThrow
+  - `logToConsole` log to console (will not work with standard babel-plugin-macros)
+  - `logWithThrow` log to console by throwing an error (will work with standard babel-plugin-macros)
+  - `printToFile` print debug info to file (will work with standard babel-plugin-macros)
+  - `maxDepth` max depth for serialising (like json-stringify) of debug object (default 10) - The Babel NodePath object can be huge! with very deep nesting!
+  - `onlyTranformation` only print the transformation result (not the full debug info)
+
+
+```ts
+module.exports = {
+  devMode: {
+    printToFile: true,
+  },
+  elms: [(...)]
+}
+```
+

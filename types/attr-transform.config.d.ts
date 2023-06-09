@@ -12,12 +12,13 @@ export type AttrTransformConfig = {
 };
 
 export type AttrTransformConfigDebug = {
-  logToConsole?: boolean;
-  logWithThrow?: boolean;
-  printToFile?: boolean | string;
-  maxDepth?: number;
-  colors?: boolean;
-};
+  logToConsole?: boolean
+  logWithThrow?: boolean
+  printToFile?: boolean | string
+  maxDepth?: number
+  onlyTranformation?: true
+  colors?: boolean
+}
 
 export type ElmConfig = {
   match?: string | RegExp; // Optional match // Special "*" matches all

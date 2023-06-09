@@ -12,71 +12,72 @@ export type AttrTransformConfig = {
 };
 
 export type AttrTransformConfigDebug = {
-  logToConsole?: boolean;
-  logWithThrow?: boolean;
-  printToFile?: boolean | string;
-  maxDepth?: number;
-  colors?: boolean;
-};
+  logToConsole?: boolean
+  logWithThrow?: boolean
+  printToFile?: boolean | string
+  maxDepth?: number
+  onlyTranformation?: true
+  colors?: boolean
+}
 
 export type ElmConfig = {
-  match?: string | RegExp; // Optional match // Special "*" matches all
-  dontMatch?: string | RegExp; // Optional dontMatch
-  attrs: AttrConfig[];
-  actions?: PostMatchAction[];
-};
+  match?: string | RegExp // Optional match // Special "*" matches all
+  dontMatch?: string | RegExp // Optional dontMatch
+  attrs: AttrConfig[]
+  actions?: PostMatchAction[]
+}
 
 // elm/action methods
-export type ConditionFunc = (matchedAttributes: PostActionMatch) => boolean;
-export type ActionValueFunc = (postActionMatch: PostActionMatch) => FullLegalAttributeValues;
-export type CreateActionValueFunc = (postActionMatch: PostActionMatch) => string | T.JSXAttribute;
+export type ConditionFunc = (matchedAttributes: PostActionMatch) => boolean
+export type ActionValueFunc = (postActionMatch: PostActionMatch) => FullLegalAttributeValues
+export type CreateActionValueFunc = (postActionMatch: PostActionMatch) => string | T.JSXAttribute
 
 // attri methods
-export type MatchValueFunc = (attrMatch: AttrMatch) => boolean;
-export type AttrValueFunc = (attrMatch: AttrMatch) => FullLegalAttributeValues;
-export type AttrStringValueFunc = (attrMatch: AttrMatch) => string;
-export type CreateValueFunc = (attrMatch: AttrMatch) => string | T.JSXAttribute;
-export type ValidateValueFunc = (attrMatch: AttrMatch) => string | undefined;
-export type ActionFunc = (attrMatch: AttrMatch) => void;
+export type MatchValueFunc = (attrMatch: AttrMatch) => boolean
+export type AttrValueFunc = (attrMatch: AttrMatch) => FullLegalAttributeValues
+export type AttrStringValueFunc = (attrMatch: AttrMatch) => string
+export type CreateValueFunc = (attrMatch: AttrMatch) => string | T.JSXAttribute
+export type ValidateValueFunc = (attrMatch: AttrMatch) => string | undefined
+export type ActionFunc = (attrMatch: AttrMatch) => void
 export type AttrConfig = {
   // a name for the config (for debugging and overview)
-  name?: string;
+  name?: string
   // a name for the config (for debugging and overview)
-  description?: string;
+  description?: string
   // a list of tags. Use for more complex match and replace (Like selecteing all collected with a tag)
-  tags?: string[];
+  tags?: string[]
   // mosth match the attribute name ( Fx: "padding" or "p1" or /p(1-9)/)
-  matchName?: string | RegExp;
+  matchName?: string | RegExp
   // most not match the attribute name ( Fx: "padding" or "p1" or /p(1-9)/)
-  dontMatchName?: string | RegExp;
+  dontMatchName?: string | RegExp
   // Calcalate a value from the AttrMatch Object. ( Fx: "p-1" or ({match}) => `p-${match[1]}` )
-  value?: string | AttrValueFunc;
+  value?: string | AttrValueFunc
   // Replace the value of the matched attribute with the calculated value
-  replaceValue?: string | AttrValueFunc;
-  replaceName?: string | AttrStringValueFunc;
+  replaceValue?: string | AttrValueFunc
+  replaceName?: string | AttrStringValueFunc
   // Validate the value (Throw MacroError if not valid)
-  validate?: ValidateValueFunc;
+  validate?: ValidateValueFunc
   // collect AttrMatch Object to be used by other attributes config (This is not need, mostly to indicate that it's macthed)
-  collect?: boolean;
+  collect?: boolean
   // remove this attribute after processing of all attributes
-  remove?: boolean;
-};
+  remove?: boolean
+}
 
 export type PostMatchAction = {
   // a name for the config (for debugging and overview)
-  name?: string;
+  name?: string
   // a name for the config (for debugging and overview)
-  description?: string;
+  description?: string
   // a list of tags. Use for more complex match and replace (Like selecteing all collected with a tag)
-  tags?: string[];
+  tags?: string[]
   // conditions
-  condition?: ConditionFunc;
+  condition?: ConditionFunc
   // create the attribute if not exists
-  createAttribute?: string | CreateActionValueFunc;
-  replaceName?: string | AttrStringValueFunc;
-  value?: string | ActionValueFunc;
-  action?: ActionFunc;
-};
+  createAttribute?: string | CreateActionValueFunc
+  replaceName?: string | AttrStringValueFunc
+  value?: string | ActionValueFunc
+  action?: ActionFunc
+}
 
 export type LegalAttributeValues =
   | T.JSXElement
