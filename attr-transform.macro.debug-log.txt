@@ -1,9 +1,31 @@
+#####################__##__attr-tranform__##__#########################
+########## /Users/alfnielsen/Code/attr-transform.macro/sandbox/in2.tsx
 
 
 
 ## Transformed Code ------------------------------------------------------------
 ## -- jsx-transform.macro (DevMode Transformed)                                 
-## -- file: /Users/alfnielsen/Code/attr-transform.macro/sandbox/in.tsx          
+## -- file: /Users/alfnielsen/Code/attr-transform.macro/sandbox/in2.tsx         
+import "../build/macro";
+import React, { FC, JSX as RJSX } from "react";
+const DD: FC = props => {
+  return <div tw="p-3 flex items-center justify-start">
+      <div tw="p-1"></div>
+    </div>;
+};
+
+
+---- - - - - - -----------------------------------------------------------------
+
+
+#####################__##__attr-tranform__##__#########################
+########## /Users/alfnielsen/Code/attr-transform.macro/sandbox/in1.tsx
+
+
+
+## Transformed Code ------------------------------------------------------------
+## -- jsx-transform.macro (DevMode Transformed)                                 
+## -- file: /Users/alfnielsen/Code/attr-transform.macro/sandbox/in1.tsx         
 /**
  * Twin Sandbox (twin-attributes)
  * A place to test the output twin creates.
@@ -15,8 +37,8 @@
  * 3. Check `sandbox/out.tsx` for the macro output
  */
 
-import './../attr-transform.macro.js';
-import React, { FC, JSX as RJSX } from 'react';
+import "../build/macro";
+import React, { FC, JSX as RJSX } from "react";
 
 // Inline tw
 
@@ -70,9 +92,9 @@ type DDProps = PaddingProp & {
   tw?: string;
 };
 const DD: FC<PaddingProp> = props => {
-  return <div data-prop="t" {...props} tw="p-4 flex items-center justify-start" />;
+  return <div data-prop="t" {...props} tw="p-3 flex items-center justify-start" />;
 };
-const d1 = <DD1 tw="p-1 bg-black/25 flex items-center justify-start" data-prop="more" float />;
+const d1 = <DD1 tw="p-2 bg-black/25 flex items-center justify-start" data-prop="more" float />;
 const d2 = <DD2 tw="p-1 flex items-center justify-start" />;
 const d3 = <DD3 />;
 const d4 = <DD4 tw="p-1 bg-gray-100" />;

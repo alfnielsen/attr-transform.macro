@@ -1,41 +1,41 @@
-import { MacroError } from "babel-plugin-macros";
-import { join } from "path";
+import { MacroError } from "babel-plugin-macros"
+import { join } from "path"
 
-import type { AttrTransformConfig, AttrTransformMacroParams } from "./attr-transform.config-types";
+import type { AttrTransformConfig, AttrTransformMacroParams } from "./attr-transform.config-types"
 
-import { Logger } from "./logger";
+import { Logger } from "./logger"
 
 export function loadConfig(params: AttrTransformMacroParams, log: Logger): AttrTransformConfig {
-  let config: AttrTransformConfig = {};
-  const { config: babelMacroConfig } = params;
-  log.header(`Config`);
-  log.note(`(from babel-macro-pluing under 'attr-transform' section)`);
-  log.object(babelMacroConfig);
-  log.end();
+  let config: AttrTransformConfig = {}
+  const { config: babelMacroConfig } = params
+  log.header(`Config`)
+  log.note(`(from babel-macro-pluing under 'attr-transform' section)`)
+  log.object(babelMacroConfig)
+  log.end()
 
   // Get the config in babel-macro config: https://github.com/kentcdodds/babel-plugin-macros/blob/main/other/docs/author.md
   // Or from file
 
-  let configFile: string | undefined = undefined;
+  let configFile: string | undefined = undefined
   if (babelMacroConfig?.config === undefined) {
-    configFile = "attr-transform.config.js";
+    configFile = "attr-transform.config.cjs"
   } else if (typeof babelMacroConfig?.config === "string") {
-    configFile = babelMacroConfig.config;
+    configFile = babelMacroConfig.config
   } else {
-    config = babelMacroConfig;
+    config = babelMacroConfig
   }
 
   if (configFile) {
-    const baseDirectory = process.cwd();
+    const baseDirectory = process.cwd()
     //throw new MacroError("baseDirectory: " + baseDirectory)
     //log("baseDirectory: " + baseDirectory, "configFile: " + configFile)
-    const configFilePath = join(baseDirectory, configFile);
-    log.note(`Loading config from file: `, "cyan");
-    log.note(`path: ${configFilePath}`, "blackBright");
-    const configFromFile = require(configFilePath) as AttrTransformConfig;
-    config = configFromFile;
+    const configFilePath = join(baseDirectory, configFile)
+    log.note(`Loading config from file: `, "cyan")
+    log.note(`path: ${configFilePath}`, "blackBright")
+    const configFromFile = require(configFilePath) as AttrTransformConfig
+    config = configFromFile
   } else if (babelMacroConfig?.elms) {
-    config = babelMacroConfig;
+    config = babelMacroConfig
   } else {
     throw new MacroError(
       `
@@ -63,11 +63,11 @@ export function loadConfig(params: AttrTransformMacroParams, log: Logger): AttrT
           ],
         }
         `
-    );
+    )
   }
 
   if (config.devMode && config.devMode.maxDepth) {
-    log.maxDepth = config.devMode.maxDepth;
+    log.maxDepth = config.devMode.maxDepth
   }
-  return config;
+  return config
 }

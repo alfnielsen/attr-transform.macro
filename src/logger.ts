@@ -1,6 +1,6 @@
-import clc from "cli-color";
-import { getSourceFromNode, getSourceFromNodePath } from "getSourceFromNode";
-import stringify from "x-stringify";
+import clc from "cli-color"
+import { stringify } from "x-stringify"
+import { getSourceFromNode, getSourceFromNodePath } from "./getSourceFromNode"
 
 export type Colors =
   | "black"
@@ -34,18 +34,18 @@ export type Colors =
   | "bgBlueBright"
   | "bgMagentaBright"
   | "bgCyanBright"
-  | "bgWhiteBright";
+  | "bgWhiteBright"
 
 export class Logger {
-  logLines: { msg: string; color: Colors }[] = [];
-  content: string = "";
-  indent = 2;
-  maxDepth = 4;
-  showUndefined = false;
-  showNull = true;
-  lineWith = 80;
+  logLines: { msg: string; color: Colors }[] = []
+  content: string = ""
+  indent = 2
+  maxDepth = 4
+  showUndefined = false
+  showNull = true
+  lineWith = 80
 
-  enabled = false;
+  enabled = false
 
   stringify(obj: object, maxDepth: number = this.maxDepth) {
     return stringify(obj, {
@@ -53,77 +53,77 @@ export class Logger {
       maxDepth,
       showUndefined: this.showUndefined,
       showNull: this.showNull,
-    });
+    })
   }
 
   object(obj: any, color: Colors = "white", maxDepth?: number) {
     if (this.enabled) {
-      let json = this.stringify(obj, maxDepth);
-      this.msg(json, color);
+      let json = this.stringify(obj, maxDepth)
+      this.msg(json, color)
     }
   }
 
   nodePath(nodePath: any, color: Colors = "white") {
     if (this.enabled) {
-      const code = getSourceFromNodePath(nodePath);
-      this.msg(code, color);
+      const code = getSourceFromNodePath(nodePath)
+      this.msg(code, color)
     }
   }
   node(node: any, color: Colors = "white") {
     if (this.enabled) {
-      const code = getSourceFromNode(node);
-      this.msg(code, color);
+      const code = getSourceFromNode(node)
+      this.msg(code, color)
     }
   }
 
   msg(message: string, color: Colors = "white") {
     if (this.enabled) {
-      this.logLines.push({ msg: message, color });
+      this.logLines.push({ msg: message, color })
     }
   }
   contentLine(line: number, color: Colors = "white") {
     if (this.enabled) {
-      let message = `${line}: ` + this.content.split("\n")[line - 1];
-      this.logLines.push({ msg: message, color });
+      let message = `${line}: ` + this.content.split("\n")[line - 1]
+      this.logLines.push({ msg: message, color })
     }
   }
   note(message: string, color: Colors = "blackBright") {
     if (this.enabled) {
-      this.line(message, "## -- ", false, color);
+      this.line(message, "## -- ", false, color)
     }
   }
   header(message: string, color: Colors = "cyan") {
     if (this.enabled) {
-      this.line(message, "## ", true, color);
+      this.line(message, "## ", true, color)
     }
   }
   subheader(message: string, color: Colors = "cyan") {
     if (this.enabled) {
-      this.line(message, ">> ", false, color);
+      this.line(message, ">> ", false, color)
     }
   }
   end(color: Colors = "blackBright") {
     if (this.enabled) {
-      this.line("", "---- - - - - -", true, color);
+      this.line("", "---- - - - - -", true, color)
     }
   }
   line(message: string, prefix = "", header: boolean, color: Colors = "white") {
     if (this.enabled) {
-      let msg = `${prefix}${message} `;
-      let len = msg.length;
+      let msg = `${prefix}${message} `
+      let len = msg.length
       if (len < this.lineWith) {
-        let space = this.lineWith - len;
-        let char = header ? "-" : " ";
-        msg += char.repeat(space);
+        let space = this.lineWith - len
+        let char = header ? "-" : " "
+        msg += char.repeat(space)
       }
-      this.logLines.push({ msg, color });
+      this.logLines.push({ msg, color })
     }
   }
 
   getColorLog() {
-    return this.logLines.map((x) => clc[x.color](x.msg)).join("\n");
+    return this.logLines.map((x) => clc[x.color](x.msg)).join("\n")
   }
   getLog() {
-    return this.logLines.map((x) => x.msg).join("\n");
+    return this.logLines.map((x) => x.msg).join("\n")
   }
 }

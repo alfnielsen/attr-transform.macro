@@ -1,21 +1,15 @@
 {
   "compilerOptions": {
-    "target": "ES2015",
-    "module": "esnext",
-    "moduleResolution": "nodenext",
+    "target": "ESNext",
+    "module": "NodeNext",
+    "moduleResolution": "node",
     "esModuleInterop": true,
     "allowSyntheticDefaultImports": true,
     "declaration": true,
     "strict": true,
     "jsx": "react",
     "noEmit": true,
-    "baseUrl": "src"
+    "outDir": "./build"
   },
-  "exclude": [
-    "node_modules"
-  ],
-  "files": [
-    "./src/attr-transform.macro.ts",
-    "types/types.d.ts"
-  ]
+  "include": ["src"]
 }

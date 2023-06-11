@@ -5,6 +5,7 @@ module.exports = {
     maxDepth: 5,
     printToFile: true,
     onlyTranformation: true,
+    onlyFiles: /in\d?$/,
   },
   elms: [
     {
@@ -78,5 +79,3 @@ module.exports = {
     },
   ],
 }
-
-

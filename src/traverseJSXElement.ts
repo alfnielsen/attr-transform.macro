@@ -11,12 +11,11 @@ import type {
   FullLegalAttributeValues,
   PostActionMatch,
   PostMatchAction,
-} from "./attr-transform.config-types";
-import { FindMatchingAttributesConfig, MatchElm, getJsxAttributes } from "./nodeMatch";
-import { replaceNameAndOrValue } from "./attr-actions";
+} from "./attr-transform.config-types"
+import { FindMatchingAttributesConfig, MatchElm, getJsxAttributes } from "./nodeMatch"
+import { replaceNameAndOrValue } from "./attr-actions"
 
-import { Logger } from "./logger";
-import { generateNode } from "getSourceFromNode";
+import { Logger } from "./logger"
 
 export function traverseJSXElement(
   path: NodePath<T.JSXElement>,

@@ -7,7 +7,7 @@ import type {
   ElmConfig,
   MatchValueFunc,
   ValidateValueFunc,
-} from "./attr-transform.config-types";
+} from "./attr-transform.config-types"
 
 export function getJsxAttributes(nodePath: NodePath<T.JSXElement>) {
   let attributes = nodePath.get("openingElement.attributes") as NodePath<T.JSXAttribute>[];

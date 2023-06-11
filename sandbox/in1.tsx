@@ -9,43 +9,41 @@
  * 3. Check `sandbox/out.tsx` for the macro output
  */
 
-
-import './../attr-transform.macro.js'
-import React, { FC, JSX as RJSX } from 'react'
+import "../build/macro"
+import React, { FC, JSX as RJSX } from "react"
 
 // Inline tw
 
-
 interface PaddingPropList {
-    p1?: boolean
-    p2?: boolean
-    p3?: boolean
-    p4?: boolean
-    p5?: boolean
-    p6?: boolean
-    p7?: boolean
-    p8?: boolean
-    p9?: boolean
+  p1?: boolean
+  p2?: boolean
+  p3?: boolean
+  p4?: boolean
+  p5?: boolean
+  p6?: boolean
+  p7?: boolean
+  p8?: boolean
+  p9?: boolean
 }
 /** p1 - p9 only one is allowed */
-type PaddingProp = RequireOnlyOne<PaddingPropList>;
+type PaddingProp = RequireOnlyOne<PaddingPropList>
 
 // generic:
 /** p1 - p9 only one is allowed */
 type RequireOnlyOne<T, Keys extends keyof T = keyof T> = Pick<T, Exclude<keyof T, Keys>> &
   {
-    [K in Keys]-?: Required<Pick<T, K>> & Partial<Record<Exclude<Keys, K>, undefined>>;
-  }[Keys];
+    [K in Keys]-?: Required<Pick<T, K>> & Partial<Record<Exclude<Keys, K>, undefined>>
+  }[Keys]
 
-type ZeroOrOneProp<T, Keys extends keyof T = keyof T> = T extends Partial<T> ? RequireOnlyOne<T, Keys> : T;
+type ZeroOrOneProp<T, Keys extends keyof T = keyof T> = T extends Partial<T> ? RequireOnlyOne<T, Keys> : T
 
 // https://www.typescriptlang.org/docs/handbook/jsx.html
 declare global {
   namespace JSX {
     interface IntrinsicElements {
-      div: React.DetailedHTMLProps<React.HTMLAttributes<HTMLDivElement>, HTMLDivElement>;
+      div: React.DetailedHTMLProps<React.HTMLAttributes<HTMLDivElement>, HTMLDivElement>
 
-      box: React.DetailedHTMLProps<React.HTMLAttributes<HTMLDivElement>, HTMLDivElement>;
+      box: React.DetailedHTMLProps<React.HTMLAttributes<HTMLDivElement>, HTMLDivElement>
     }
 
     // interface ElementAttributesProperty {
@@ -56,33 +54,32 @@ declare global {
 
     interface IntrinsicAttributes {
       /** tw: "flex" */
-      flex?: boolean;
+      flex?: boolean
       /** tw: "flex items-center justify-start" */
-      line?: boolean;
+      line?: boolean
       /** tw: "p1" */
-      p1?: boolean;
+      p1?: boolean
       /** tw: "p2" */
-      p2?: boolean;
+      p2?: boolean
     }
   }
 }
 
 type DDProps = PaddingProp & {
-  children?: React.ReactNode;
-  className?: string;
-  tw?: string;
-};
+  children?: React.ReactNode
+  className?: string
+  tw?: string
+}
 
 const DD: FC<PaddingProp> = (props) => {
-  return <div p4 line data-prop="t" {...props} />;
-};
-const d1 = <DD1 p1 tw="bg-black/25" data-prop="more" flex fl />;
-const d2 = <DD2 p1 flex />;
-const d3 = <DD3 />;
-const d4 = <DD4 p1 tw="bg-gray-100" />;
-const d5 = <DD5 placeholder-search />;
+  return <div p3 line data-prop="t" {...props} />
+}
+const d1 = <DD1 p2 tw="bg-black/25" data-prop="more" flex fl />
+const d2 = <DD2 p1 flex />
+const d3 = <DD3 />
+const d4 = <DD4 p1 tw="bg-gray-100" />
+const d5 = <DD5 placeholder-search />
 
 const e1 = (
   <ActionGroupRow single title="Database Tables" icon={<DbSqlIcon />} section="database-tables"></ActionGroupRow>
-);
-
+)

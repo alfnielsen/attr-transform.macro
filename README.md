@@ -486,7 +486,7 @@ All debug optiosn:
   - `printToFile` print debug info to file (will work with standard babel-plugin-macros)
   - `maxDepth` max depth for serialising (like json-stringify) of debug object (default 10) - The Babel NodePath object can be huge! with very deep nesting!
   - `onlyTranformation` only print the transformation result (not the full debug info)
-
+  - `onlyFiles` Only print to file matching this string / regex (default: undefined = all files)
 
 ```ts
 module.exports = {

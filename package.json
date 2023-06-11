@@ -1,34 +1,39 @@
 {
   "name": "attr-transform.macro",
-  "version": "0.0.13",
+  "version": "0.0.14",
   "description": "jsx attribute pre-processor",
-  "main": "attr-transform.macro.js",
-  "source": "src/attr-transform.macro.ts",
-  "types": "types/attr-transform.macro.d.ts",
+  "type": "module",
+  "source": "./src/macro.ts",
+  "types": "./types/*.d.ts",
+  "main": "./build/macro.cjs",
+  "module": "./build/macro.es.js",
+  "unpkg": "./build/macro.umd.js",
+  "exports": {
+    "require": {
+      "default": "./build/macro.cjs",
+      "types": "./build/macro.d.ts"
+    },
+    "import": {
+      "default": "./build/macro.es.js",
+      "types": "./build/macro.d.ts"
+    }
+  },
   "files": [
-    "attr-transform.macro.js",
-    "attr-transform.macro.js.map",
-    "types/attr-transform.config.d.ts",
-    "types/attr-transform.macro.d.ts"
+    "build",
+    "types"
   ],
   "scripts": {
+    "build": "microbundle",
     "dev": "concurrently yarn:dev:* -p none",
     "dev:macro": "NODE_ENV=dev nodemon -q --watch './src/**/*.ts' --watch package.json -x \"yarn build:macro\" --delay .2",
-    "dev:sandbox": "NODE_ENV=dev nodemon -q --watch sandbox/in.tsx --watch attr-transform.config.js --watch package.json --watch attr-transform.macro.js -x \"yarn build:sandbox\" --delay .2",
-    "build": "yarn run build:macro",
-    "build:macro": "microbundle -i \"./src/attr-transform.macro.ts\" -f cjs -o ./attr-transform.macro.js --target node",
-    "build:sandbox": "babel sandbox/in.tsx -o sandbox/out.js",
+    "dev:sandbox1": "NODE_ENV=dev nodemon -q --watch './sandbox/in1.tsx' --watch attr-transform.config.js --watch build/attr-transform.macro.js -x \"yarn build:sandbox1\" --delay .2",
+    "dev:sandbox2": "NODE_ENV=dev nodemon -q --watch './sandbox/in2.tsx' --watch attr-transform.config.js --watch build/attr-transform.macro.js -x \"yarn build:sandbox2\" --delay .2",
+    "build:macro": "microbundle",
+    "build:sandbox1": "babel sandbox/in1.tsx -o sandbox/out/in1.jsx",
+    "build:sandbox2": "babel sandbox/in2.tsx -o sandbox/out/in2.jsx",
     "test": "yarn build && jest",
     "test:update": "yarn build && jest --u",
     "prepublishOnly": "yarn build"
-  },
-  "nodemonConfig": {
-    "ignore": [],
-    "watch": [
-      "src"
-    ],
-    "ext": "ts",
-    "delay": "0"
   },
   "repository": {
     "type": "git",
@@ -52,33 +57,34 @@
   },
   "homepage": "https://github.com/alfnielsen/attr-transform.macro#readme",
   "dependencies": {
-    "@babel/template": "^7.21.9",
+    "@babel/template": "^7.22.5",
     "babel-plugin-macros": "^3.1.0",
-    "cli-color": "^2.0.3"
+    "cli-color": "^2.0.3",
+    "node-x-path": "^0.0.32"
   },
   "devDependencies": {
-    "@babel/cli": "^7.21.5",
-    "@babel/core": "^7.22.1",
-    "@babel/parser": "^7.22.4",
-    "@babel/plugin-syntax-jsx": "^7.21.4",
-    "@babel/plugin-transform-react-jsx": "^7.22.3",
-    "@babel/preset-env": "^7.22.4",
-    "@babel/preset-react": "^7.22.3",
-    "@babel/preset-typescript": "^7.21.5",
-    "@babel/template": "^7.21.9",
-    "@babel/traverse": "^7.22.4",
-    "@babel/types": "^7.22.4",
-    "@emotion/react": "^11.11.0",
+    "@babel/cli": "^7.22.5",
+    "@babel/core": "^7.22.5",
+    "@babel/parser": "^7.22.5",
+    "@babel/plugin-syntax-jsx": "^7.22.5",
+    "@babel/plugin-transform-react-jsx": "^7.22.5",
+    "@babel/preset-env": "^7.22.5",
+    "@babel/preset-react": "^7.22.5",
+    "@babel/preset-typescript": "^7.22.5",
+    "@babel/template": "^7.22.5",
+    "@babel/traverse": "^7.22.5",
+    "@babel/types": "^7.22.5",
+    "@emotion/react": "^11.11.1",
     "@emotion/styled": "^11.11.0",
     "@testing-library/react": "^14.0.0",
     "@types/babel-plugin-macros": "^3.1.0",
-    "@types/babel__traverse": "^7.20.0",
+    "@types/babel__traverse": "^7.20.1",
     "@types/cli-color": "^2.0.2",
-    "@types/jest": "^29.5.1",
-    "@types/node": "^20.2.5",
-    "@types/react": "^18.2.7",
+    "@types/jest": "^29.5.2",
+    "@types/node": "^20.3.0",
+    "@types/react": "^18.2.11",
     "babel-plugin-tester": "^11.0.4",
-    "concurrently": "^8.0.1",
+    "concurrently": "^8.2.0",
     "glob-all": "^3.3.1",
     "jest": "^29.5.0",
     "jest-diff": "^29.5.0",
@@ -86,12 +92,12 @@
     "nodemon": "^2.0.22",
     "react": "^18.2.0",
     "resolve": "^1.22.2",
-    "rome": "12.1.2",
+    "rome": "12.1.3",
     "tailwindcss": "^3.3.2",
     "ts-jest": "^29.1.0",
     "ts-node": "^10.9.1",
     "twin.macro": "^3.3.1",
-    "typescript": "^5.0.4",
-    "x-stringify": "^0.0.1"
+    "typescript": "^5.1.3",
+    "x-stringify": "^0.0.5"
   }
 }

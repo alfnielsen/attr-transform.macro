@@ -17,6 +17,7 @@ export type AttrTransformConfigDebug = {
   printToFile?: boolean | string
   maxDepth?: number
   onlyTranformation?: true
+  onlyFiles?: string | RegExp | (string | RegExp)[]
   colors?: boolean
 }
 

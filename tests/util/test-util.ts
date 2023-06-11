@@ -1,5 +1,6 @@
 import macro from "babel-plugin-macros";
 import * as babel from "@babel/core";
+//@ts-ignore
 import syntaxJsx from "@babel/plugin-syntax-jsx";
 import { AttrTransformConfig, AttrTransformMacroParams } from "../../types/attr-transform.config";
 

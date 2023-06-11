@@ -1,7 +1,7 @@
 import type { NodePath, types as T } from "@babel/core";
-import { Logger } from "./logger";
-import { AttrMatch, FullLegalAttributeValues } from "attr-transform.config-types";
-import { getSourceFromNodePath } from "getSourceFromNode";
+import { Logger } from "./logger"
+import { AttrMatch, FullLegalAttributeValues } from "./attr-transform.config-types"
+import { getSourceFromNodePath } from "./getSourceFromNode"
 
 export function replaceNameAndOrValue(foundProp: AttrMatch, t: typeof T, log: Logger) {
   log.note(`Attr action: replaceName and/or replaceValue`, "blackBright");
